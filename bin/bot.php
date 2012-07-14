@@ -11,8 +11,8 @@ $access_token = TWITTER_ACCESS_TOKEN;
 $access_token_secret = TWITTER_ACCESS_TOKEN_SECRET;
 $appid = YAHOO_APP_ID;
 
-$bot = new BoobyBot($consumer_key, $consumer_secret, $access_token, $access_token_secret);
-$bot->gather($userid, $passwd);
+$bot = new BoobyBot($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret);
+$bot->gather();
 exit(0);
 
 
@@ -31,8 +31,8 @@ if (in_array('post', $argv)) {
     exit(1);
     
 } else if (in_array('gather', $argv)) {
-    $bot = new BoobyBot($consumer_key, $consumer_secret, $access_token, $access_token_secret);
-    $bot->gather($userid, $passwd);
+    $bot = new BoobyBot($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret);
+    $bot->gather();
     exit(1);
     
 } else {
