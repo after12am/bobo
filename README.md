@@ -1,3 +1,3 @@
 <h1>BoobyTrap</h1>
 
-<p>A bot tweets using markov chain.</p>
+<p>A bot tweets using a second-order Markov chain.</p>

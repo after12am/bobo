@@ -6,7 +6,7 @@ class TwitterStream extends TwitterAPI {
     protected $userid;
     protected $passwd;
     
-    private $fp;
+    protected $fp;
     protected $errno;
     protected $errmsg;
     
@@ -25,19 +25,19 @@ class TwitterStream extends TwitterAPI {
     
     protected function open($host = "stream.twitter.com", $path = "/1/statuses/sample.json", $port = 443, $timeout = 30) {
         
-        // try to establish a connection to a streaming
-        // for being delivered a feed of Tweets, without
-        // needing to worry about polling or REST API rate limits.
-        
         $this->errno = 0;
         $this->errmsg = "";
         
-        if (($this->fp = fsockopen("ssl://{$host}", $port, $this->errno, $this->errmsg, $timeout)) === false) {
+        // try to establish a connection to a streaming
+        // for being delivered a feed of Tweets, without
+        // needing to worry about polling or REST API rate limits.
+        $this->fp = fsockopen("ssl://{$host}", $port, $this->errno, $this->errmsg, $timeout);
+        
+        if ($this->fp === false) {
              return false;
         }
         
         $this->connect($host, $path);
-        
         return $this->fp;
     }
     
