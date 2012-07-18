@@ -69,8 +69,8 @@ class Markov {
         
         $p = "/https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/";
         $m = array();
-		preg_match($p, $tweet, $m);
-		$tweet = preg_replace($p, "REPLACEDURL", $tweet);
+        preg_match($p, $tweet, $m);
+        $tweet = preg_replace($p, "REPLACEDURL", $tweet);
 		
         $ret = self::parse($tweet);
         $ret = $ret->ma_result->word_list->word;
