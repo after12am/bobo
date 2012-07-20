@@ -11,36 +11,86 @@ class BoobyBot extends TwitterStream {
     
     public function post() {
         
+        $tweet = '';
+        
+        // begin
+        $rows = Markov::find('BOF');
+        
+        if (count($rows) > 0) {
+            
+            $ma = $rows[mt_rand(0, count($rows) - 1)];
+        	$tweet .= $ma['lex2'];
+            
+        	while ($ma['lex3'] !== 'EOF') {
+        	    
+        	    $rows = Markov::find($ma['lex3']);
+        	    
+        	    // I don't understand why I can't get target rows.
+                if (count($rows) === 0) {
+                    break;
+                }
+                
+                $ma = $rows[mt_rand(0, count($rows) - 1)];
+                
+                $tweetLen = mb_strlen($tweet, 'UTF-8');
+                $addedLen = mb_strlen($ma['lex1'] . $ma['lex2'], 'UTF-8');
+                
+                if ($tweetLen + $addedLen > 140) {
+                    break;
+                }
+                
+        	    $tweet .= $ma['lex1'] . $ma['lex2'];
+        	}
+        }
+        
+        echo "@dev_12am:" . $tweet . "\n";
     }
     
-    public function gather($ignore_ids = array()) {
+    public function pick($ignore_ids = array(), $allow_langs = array()) {
         
         // no need for deleting file pointer resource
         $fp = $this->open();
         
         while($json = fgets($fp)) {
             
-            if (($twitter = json_decode($json, true)) === NULL) continue;
+            $twitter = json_decode($json, true);
             
-            $id = $twitter['id_str'];
-            $name = $twitter['user']['screen_name'];
-            $lang = $twitter['user']['lang'];
-            $text = $this->clean($twitter['text']);
+            if ($twitter === NULL) {
+                continue;
+            }
             
-            if (in_array($id, $ignore_ids)) continue;
-            if ($lang !== "ja") continue;
-            if (!$text) continue;
-            if (Tweet::isExist($id)) continue;
+            if ($this->filter($twitter, $ignore_ids, $allow_langs) === false) {
+                continue;
+            }
             
-            Tweet::save($id, $text);
-            Markov::save($text);
-            
-            printf("@%s:%s\n", $name, $text);
+            $this->save($twitter);
         }
     }
     
-    private function filter() {
+    private function save($twitter) {
         
+        $id = $twitter['id_str'];
+        $name = $twitter['user']['screen_name'];
+        $cleaned = $this->clean($twitter['text']);
+        
+        Tweet::save($id, $cleaned);
+        Markov::save($cleaned);
+        
+        echo "@" . $name . ":" . $cleaned . "\n";
+    }
+    
+    private function filter($twitter, $ignore_ids = array(), $allow_langs = array()) {
+        
+        $id = $twitter['id_str'];
+        $lang = $twitter['user']['lang'];
+        $text = $twitter['text'];
+        
+        if (in_array($id, $ignore_ids)) return false;
+        if (in_array($lang, $allow_langs) === false) return false;
+        if ($text === '') return false;
+        if (Tweet::isExist($id)) return false;
+        
+        return true;
     }
     
     private function clean($text) {

@@ -5,7 +5,6 @@ class TwitterStream extends TwitterAPI {
     
     protected $userid;
     protected $passwd;
-    
     protected $fp;
     protected $errno;
     protected $errmsg;
@@ -14,13 +13,14 @@ class TwitterStream extends TwitterAPI {
         
         $this->userid = $userid;
         $this->passwd = $passwd;
-        
         parent::__construct($consumer_key, $consumer_secret, $access_token, $access_token_secret);
     }
     
     public function __destruct() {
         
-        fclose($this->fp);
+        if ($this->fp) {
+            fclose($this->fp);
+        }
     }
     
     protected function open($host = "stream.twitter.com", $path = "/1/statuses/sample.json", $port = 443, $timeout = 30) {
@@ -38,6 +38,7 @@ class TwitterStream extends TwitterAPI {
         }
         
         $this->connect($host, $path);
+        
         return $this->fp;
     }
     

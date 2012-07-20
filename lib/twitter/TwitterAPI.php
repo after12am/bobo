@@ -15,7 +15,6 @@ class TwitterAPI {
         $this->consumer_secret = $consumer_secret;
         $this->access_token = $access_token;
         $this->access_token_secret = $access_token_secret;
-        
         $this->twitter = new TwitterOAuth($consumer_key, $consumer_secret, $access_token, $access_token_secret);
     }
 }

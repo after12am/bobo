@@ -4,14 +4,17 @@ require_once('yahoo/MAService.php');
 
 class Markov {
     
-    public static function save($tweet) {
+    public static function save($text) {
         
-        $rows = Markov::analyse($tweet);
+        $rows = Markov::analyse($text);
         
-        foreach ($rows as $row) {
+        foreach ($rows as $k => $row) {
             
-            if ($count = self::count($lex1, $lex2, $lex3)) {
-                self::update($count + 1);
+            $rows = self::find($lex1, $lex2, $lex3);
+            $cnt = $rows ? count($rows) : 0;
+            
+            if ($cnt) {
+                self::update($row[0], $row[1], $row[2], $cnt + 1);
             } else {
                 self::insert($row[0], $row[1], $row[2]);
             }
@@ -47,6 +50,44 @@ class Markov {
         return $db->query($query);
     }
     
+    public static function find($lex1, $lex2 = NULL, $lex3 = NULL) {
+        
+        $db = DB::getInstance();
+        
+        $query = sprintf(
+            "SELECT * FROM markov WHERE lex1='%s'",
+            $db->escapeString($lex1)
+        );
+        
+        if ($lex2) {
+            $query .= sprintf(
+                " AND lex2='%s'",
+                $db->escapeString($lex2)
+            );
+        }
+        
+        if ($lex3) {
+            $query .= sprintf(
+                " AND lex3='%s'",
+                $db->escapeString($lex3)
+            );
+        }
+        
+        $query .= ";";
+        
+        if (($ret = $db->query($query)) === false) {
+            return false;
+        }
+        
+        $rows = array();
+        
+        while ($row = $ret->fetchArray()) {
+            $rows[] = $row;
+        }
+        
+        return $rows;
+    }
+    
     private static function count($lex1, $lex2, $lex3) {
         
         $db = DB::getInstance();
@@ -62,55 +103,78 @@ class Markov {
             return false;
         }
         
-        return $ret->fetchArray();
+        $ret = $ret->fetchArray();
+        
+        return $ret['count'];
     }
     
-    private static function analyse($tweet) {
+    private static function analyse($text) {
         
-        $p = "/https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/";
-        $m = array();
-        preg_match($p, $tweet, $m);
-        $tweet = preg_replace($p, "REPLACEDURL", $tweet);
-		
-        $ret = self::parse($tweet);
-        $ret = $ret->ma_result->word_list->word;
-        
+        $shelter = self::shelter($text);
+        $r = self::parse($shelter['text']);
         $rows = array();
         
-        for ($i = 0; $i < count($ret) - 1; $i++) {
+        for ($i = -1; $i < count($r) - 1; $i++) {
             
-            $r1 = (array)$ret[$i];
-            $r2 = (array)$ret[$i + 1];
-            $r3 = (array)$ret[$i + 2];
+            $r1 = (array)$r[$i];
+            $r2 = (array)$r[$i + 1];
+            $r3 = (array)$r[$i + 2];
             
-            if ($m) {
-                if ($r1['surface'] === 'REPLACEDURL') {
-                    $r1['surface'] = $m[0];
-                }
-                
-                if ($r2['surface'] === 'REPLACEDURL') {
-                    $r2['surface'] = $m[0];
-                }
-                
-                if ($r3['surface'] === 'REPLACEDURL') {
-                    $r3['surface'] = $m[0];
-                }
+            if ($i === -1) {
+                $r1 = array('surface' => BOF);
+            }
+            
+            if ($i === (count($r) - 2)) {
+                $r3 = array('surface' => EOF);
             }
             
             $rows[] = array(
                 $r1['surface'],
                 $r2['surface'],
-                isset($r3['surface']) ? $r3['surface'] : EOF
+                $r3['surface']
             );
+        }
+        
+        if (isset($shelter['match'])) {
+            foreach ($rows as $i => $row) {
+                foreach ($row as $j => $c) {
+                    if ($c === $shelter['rep']) {
+                        $rows[$i][$j] = $shelter['match'];
+                    }
+                }
+            }
         }
         
         return $rows;
     }
     
-    private static function parse($tweet) {
+    private static function parse($text) {
         
         $maService = new MAService(YAHOO_APP_ID);
-        $result = $maService->parse($tweet);
-        return $result;
+        $ret = $maService->parse($text);
+        $ret = $ret->ma_result->word_list->word;
+        
+        return $ret;
+    }
+    
+    private static function shelter($text) {
+        
+        // shelter email address
+        
+        $pat = "/https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/";
+        $rep = "REPLACEDURL";
+        
+        $m = array();
+        preg_match($pat, $text, $m);
+        $text = preg_replace($pat, $rep, $text);
+        
+        $ret = array(
+            'text' => $text,    // replaced text
+            'match' => $m[0],   // match text
+            'rep' => $rep,      // replace text
+            'pat' => $pat       // pattern
+        );
+        
+        return $ret;
     }
 }
