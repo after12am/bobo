@@ -1,4 +1,5 @@
 <?
+require_once('db/DB.php');
 require_once('db/Markov.php');
 require_once('db/Tweet.php');
 require_once('twitter/TwitterStream.php');
@@ -112,6 +113,9 @@ class BoobyBot extends TwitterStream {
             $name = $twitter['user']['screen_name'];
             $cleaned = $this->clean($twitter['text']);
             
+            $db = DB::getInstance();
+            $db->exec("BEGIN DEFERRED;");
+            
             $rows = array(
                 array(
                     'id' => $id,
@@ -119,6 +123,7 @@ class BoobyBot extends TwitterStream {
                     'tweet' => $cleaned
                 )
             );
+            
             Tweet::save($rows);
             
             // I evacuate URL.
@@ -138,6 +143,7 @@ class BoobyBot extends TwitterStream {
             }
             
             Markov::save($rows);
+            $db->exec("COMMIT;");
             
             echo "@" . $name . ":" . $cleaned . "\n";
         }
