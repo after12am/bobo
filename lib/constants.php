@@ -5,6 +5,7 @@
 */
 // relational path from db/DB.php
 define('PATH_TO_DB', dirname(__FILE__) . '/../bin/markov.db');
+define('PATH_TO_JOURNAL', dirname(__FILE__) . '/../bin/markov.db-journal');
 define('PATH_TO_SQL', dirname(__FILE__) . '/../sql/boobyTrap.sql');
 
 /*

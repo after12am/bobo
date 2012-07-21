@@ -5,6 +5,10 @@ class DB extends SQLite3 {
     
     public function __construct() {
         
+        if (file_exists(PATH_TO_JOURNAL)) {
+            unlink(PATH_TO_JOURNAL);
+        }
+        
         $this->open(PATH_TO_DB);
     }
     
