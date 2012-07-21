@@ -1,6 +1,10 @@
 BoobyTrap
 =========
 
+## Demo
+
+<a href="https://twitter.com/dev_12am">@dev_12am</a>
+
 ## Usage
 
 A bot tweets a trap message that is artificially created using a second-order Markov chain. To setup BoobyBot, run the following commands in a new terminal.
