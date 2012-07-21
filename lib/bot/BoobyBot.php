@@ -57,7 +57,7 @@ class BoobyBot extends TwitterStream {
         // add hash tag
         $tweet .= $hash;
         
-		$ret = $this->twitter->post($status, array('status' => $tweet));
+        $ret = $this->twitter->post($status, array('status' => $tweet));
         
         // in case of error
         if ($ret->error) {
