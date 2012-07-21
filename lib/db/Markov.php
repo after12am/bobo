@@ -1,14 +1,21 @@
 <?
 require_once("DB.php");
-require_once('yahoo/MAService.php');
 
 class Markov {
     
-    public static function save($text) {
+    /*
+        $data = array(
+            array(
+                'lex1' : $lex1,
+                'lex2' : $lex2,
+                'lex3' : $lex3
+            ),
+            ...
+        );
+    */
+    public static function save($data) {
         
-        $rows = Markov::analyse($text);
-        
-        foreach ($rows as $k => $row) {
+        foreach ($data as $k => $row) {
             
             $rows = self::find($lex1, $lex2, $lex3);
             $cnt = $rows ? count($rows) : 0;
@@ -35,13 +42,13 @@ class Markov {
         return $db->query($query);
     }
     
-    private static function update($lex1, $lex2, $lex3, $count) {
+    private static function update($lex1, $lex2, $lex3, $cnt) {
         
         $db = DB::getInstance();
         
         $query = sprintf(
-            "UPDATE markov set count=%s WHERE lex1='%s' AND lex2='%s' AND lex3='%s';",
-            $count,
+            "UPDATE markov set cnt=%s WHERE lex1='%s' AND lex2='%s' AND lex3='%s';",
+            $cnt,
             $db->escapeString($lex1),
             $db->escapeString($lex2),
             $db->escapeString($lex3)
@@ -88,93 +95,23 @@ class Markov {
         return $rows;
     }
     
-    private static function count($lex1, $lex2, $lex3) {
-        
-        $db = DB::getInstance();
-        
-        $query = sprintf(
-            "SELECT count FROM markov WHERE lex1='%s' AND lex2='%s' AND lex3='%s';",
-            $db->escapeString($lex1),
-            $db->escapeString($lex2),
-            $db->escapeString($lex3)
-        );
-        
-        if (($ret = $db->query($query)) === false) {
-            return false;
-        }
-        
-        $ret = $ret->fetchArray();
-        
-        return $ret['count'];
-    }
-    
-    private static function analyse($text) {
-        
-        $shelter = self::shelter($text);
-        $r = self::parse($shelter['text']);
-        $rows = array();
-        
-        for ($i = -1; $i < count($r) - 1; $i++) {
-            
-            $r1 = (array)$r[$i];
-            $r2 = (array)$r[$i + 1];
-            $r3 = (array)$r[$i + 2];
-            
-            if ($i === -1) {
-                $r1 = array('surface' => BOF);
-            }
-            
-            if ($i === (count($r) - 2)) {
-                $r3 = array('surface' => EOF);
-            }
-            
-            $rows[] = array(
-                $r1['surface'],
-                $r2['surface'],
-                $r3['surface']
-            );
-        }
-        
-        if (isset($shelter['match'])) {
-            foreach ($rows as $i => $row) {
-                foreach ($row as $j => $c) {
-                    if ($c === $shelter['rep']) {
-                        $rows[$i][$j] = $shelter['match'];
-                    }
-                }
-            }
-        }
-        
-        return $rows;
-    }
-    
-    private static function parse($text) {
-        
-        $maService = new MAService(YAHOO_APP_ID);
-        $ret = $maService->parse($text);
-        $ret = $ret->ma_result->word_list->word;
-        
-        return $ret;
-    }
-    
-    private static function shelter($text) {
-        
-        // shelter email address
-        
-        $pat = "/https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/";
-        $rep = "REPLACEDURL";
-        
-        $m = array();
-        preg_match($pat, $text, $m);
-        $text = preg_replace($pat, $rep, $text);
-        
-        $ret = array(
-            'text' => $text,    // replaced text
-            'match' => $m[0],   // match text
-            'rep' => $rep,      // replace text
-            'pat' => $pat       // pattern
-        );
-        
-        return $ret;
-    }
+    // private static function cnt($lex1, $lex2, $lex3) {
+    //     
+    //     $db = DB::getInstance();
+    //     
+    //     $query = sprintf(
+    //         "SELECT cnt FROM markov WHERE lex1='%s' AND lex2='%s' AND lex3='%s';",
+    //         $db->escapeString($lex1),
+    //         $db->escapeString($lex2),
+    //         $db->escapeString($lex3)
+    //     );
+    //     
+    //     if (($ret = $db->query($query)) === false) {
+    //         return false;
+    //     }
+    //     
+    //     $ret = $ret->fetchArray();
+    //     
+    //     return $ret['cnt'];
+    // }
 }

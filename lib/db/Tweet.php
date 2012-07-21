@@ -3,19 +3,31 @@ require_once("DB.php");
 
 class Tweet {
     
-    public static function save($id, $tweet) {
-        
-        if (!preg_match('/^[0-9]+$/', $id)) return false;
-        
-        $db = DB::getInstance();
-        
-        $query = sprintf(
-            "INSERT INTO tweet (id, tweet) VALUES (%s, '%s');",
-            $id,
-            $db->escapeString($tweet)
+    /*
+        $data = array(
+            array(
+                'id' : $id,
+                'tweet' : $tweet
+            ),
+            ...
         );
+    */
+    public static function save($data) {
         
-        return $db->query($query);
+        foreach ($data as $d) {
+            
+            if (!preg_match('/^[0-9]+$/', $d['id'])) return false;
+
+            $db = DB::getInstance();
+
+            $query = sprintf(
+                "INSERT INTO tweet (id, tweet) VALUES (%s, '%s');",
+                $d['id'],
+                $db->escapeString($d['tweet'])
+            );
+            
+            $db->query($query);
+        }
     }
     
     public static function isExist($id) {
