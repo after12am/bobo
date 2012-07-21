@@ -4,6 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS `tweet` (
   `id` integer primary key,
+  `screen_name` text NOT NULL,
   `tweet` text NOT NULL
 );
 

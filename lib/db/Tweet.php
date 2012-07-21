@@ -4,7 +4,7 @@ require_once("DB.php");
 class Tweet {
     
     /*
-        $data = array(
+        $rows = array(
             array(
                 'id' : $id,
                 'tweet' : $tweet
@@ -12,17 +12,18 @@ class Tweet {
             ...
         );
     */
-    public static function save($data) {
+    public static function save($rows) {
         
-        foreach ($data as $d) {
+        foreach ($rows as $d) {
             
             if (!preg_match('/^[0-9]+$/', $d['id'])) return false;
 
             $db = DB::getInstance();
 
             $query = sprintf(
-                "INSERT INTO tweet (id, tweet) VALUES (%s, '%s');",
+                "INSERT INTO tweet (id, screen_name, tweet) VALUES (%s, '%s', '%s');",
                 $d['id'],
+                $db->escapeString($d['screen_name']),
                 $db->escapeString($d['tweet'])
             );
             

@@ -4,7 +4,7 @@ require_once("DB.php");
 class Markov {
     
     /*
-        $data = array(
+        $rows = array(
             array(
                 'lex1' : $lex1,
                 'lex2' : $lex2,
@@ -13,9 +13,9 @@ class Markov {
             ...
         );
     */
-    public static function save($data) {
+    public static function save($rows) {
         
-        foreach ($data as $k => $row) {
+        foreach ($rows as $k => $row) {
             
             $rows = self::find($lex1, $lex2, $lex3);
             $cnt = $rows ? count($rows) : 0;

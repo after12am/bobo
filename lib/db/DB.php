@@ -1,5 +1,4 @@
 <?
-
 class DB extends SQLite3 {
     
     static protected $instance = NULL;

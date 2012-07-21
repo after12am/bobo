@@ -6,7 +6,10 @@ require_once('yahoo/MAService.php');
 
 class BoobyBot extends TwitterStream {
     
+    protected $maService;
+    
     public function __construct($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret) {
+        $this->maService = new MAService(YAHOO_APP_ID);
         parent::__construct($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret);
     }
     
@@ -108,40 +111,55 @@ class BoobyBot extends TwitterStream {
             $id = $twitter['id_str'];
             $name = $twitter['user']['screen_name'];
             $cleaned = $this->clean($twitter['text']);
-
-            $data = array(
+            
+            $rows = array(
                 array(
                     'id' => $id,
+                    'screen_name' => $name,
                     'tweet' => $cleaned
                 )
             );
-            Tweet::save($data);
-
-            $data = $this->analyse($cleaned);
-            Markov::save($data);
-
+            Tweet::save($rows);
+            
+            // I evacuate URL.
+            $shelter = $this->shelter($cleaned);
+            $maData = $this->maService->words($shelter['text']);
+            $rows = $this->ma2Markov($maData);
+            
+            // I wake up URL that was evacuated
+            if (isset($shelter['match'])) {
+                foreach ($rows as $i => $row) {
+                    foreach ($row as $j => $c) {
+                        if ($c === $shelter['rep']) {
+                            $rows[$i][$j] = $shelter['match'];
+                        }
+                    }
+                }
+            }
+            
+            Markov::save($rows);
+            
             echo "@" . $name . ":" . $cleaned . "\n";
         }
     }
     
-    private function analyse($text) {
+    private function ma2Markov($maData) {
         
-        $shelter = $this->shelter($text);
-        $maService = new MAService(YAHOO_APP_ID);
-        $result = $maService->words($shelter['text']);
+        // fix ma data format to markov model data
+        
         $rows = array();
         
-        for ($i = -1; $i < count($result) - 1; $i++) {
+        for ($i = -1; $i < count($maData) - 1; $i++) {
             
-            $r1 = (array)$result[$i];
-            $r2 = (array)$result[$i + 1];
-            $r3 = (array)$result[$i + 2];
+            $r1 = (array)$maData[$i];
+            $r2 = (array)$maData[$i + 1];
+            $r3 = (array)$maData[$i + 2];
             
             if ($i === -1) {
                 $r1 = array('surface' => BOF);
             }
             
-            if ($i === (count($result) - 2)) {
+            if ($i === (count($maData) - 2)) {
                 $r3 = array('surface' => EOF);
             }
             
@@ -152,16 +170,6 @@ class BoobyBot extends TwitterStream {
             );
         }
         
-        if (isset($shelter['match'])) {
-            foreach ($rows as $i => $row) {
-                foreach ($row as $j => $c) {
-                    if ($c === $shelter['rep']) {
-                        $rows[$i][$j] = $shelter['match'];
-                    }
-                }
-            }
-        }
-        
         return $rows;
     }
     
@@ -169,7 +177,6 @@ class BoobyBot extends TwitterStream {
         
         // shelter URL
         
-        // pattern of URL
         $pat = "/https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/";
         $rep = "REPLACEDURL";
         
