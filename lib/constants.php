@@ -3,10 +3,9 @@
 /*
     application configuration
 */
-define('PATH_TO_DB', 'markov.db');
-
-// relational path from bin/
-define('PATH_TO_SQL', '../sql/boobyTrap.sql');
+// relational path from db/DB.php
+define('PATH_TO_DB', dirname(__FILE__) . '/../bin/markov.db');
+define('PATH_TO_SQL', dirname(__FILE__) . '/../sql/boobyTrap.sql');
 
 /*
     twitter configuration
@@ -17,7 +16,6 @@ define('TWITTER_CONSUMER_KEY', '');
 define('TWITTER_CONSUMER_SECRET', '');
 define('TWITTER_ACCESS_TOKEN', '');
 define('TWITTER_ACCESS_TOKEN_SECRET', '');
-define('TWITTER_OAUTH_CALLBACK', 'http://example.com/callback.php');
 
 /*
     yahoo configuration
