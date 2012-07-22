@@ -6,9 +6,9 @@ class Markov {
     /*
         $rows = array(
             array(
-                'lex1' : $lex1,
-                'lex2' : $lex2,
-                'lex3' : $lex3
+                $lex1,
+                $lex2,
+                $lex3
             ),
             ...
         );
@@ -17,10 +17,11 @@ class Markov {
         
         foreach ($rows as $k => $row) {
             
-            $rows = self::find($lex1, $lex2, $lex3);
-            $cnt = $rows ? count($rows) : 0;
+            $ret = self::find($row[0], $row[1], $row[2]);
+            $cnt = count($ret);
             
-            if ($cnt) {
+            if ($cnt > 0) {
+                // update count
                 self::update($row[0], $row[1], $row[2], $cnt + 1);
             } else {
                 self::insert($row[0], $row[1], $row[2]);
@@ -35,13 +36,13 @@ class Markov {
         
         $query = sprintf(
             "INSERT INTO markov (lex1, lex2, lex3, updated) VALUES ('%s', '%s', '%s', '%s');",
-            $db->escapeString($lex1),
-            $db->escapeString($lex2),
-            $db->escapeString($lex3),
-            $db->escapeString($updated)
+            sqlite_escape_string($lex1),
+            sqlite_escape_string($lex2),
+            sqlite_escape_string($lex3),
+            sqlite_escape_string($updated)
         );
         
-        return $db->query($query);
+        return $db->exec($query);
     }
     
     private static function update($lex1, $lex2, $lex3, $cnt) {
@@ -52,13 +53,13 @@ class Markov {
         $query = sprintf(
             "UPDATE markov set cnt=%s, updated='%s' WHERE lex1='%s' AND lex2='%s' AND lex3='%s';",
             $cnt,
-            $db->escapeString($updated),
-            $db->escapeString($lex1),
-            $db->escapeString($lex2),
-            $db->escapeString($lex3)
+            sqlite_escape_string($updated),
+            sqlite_escape_string($lex1),
+            sqlite_escape_string($lex2),
+            sqlite_escape_string($lex3)
         );
         
-        return $db->query($query);
+        return $db->exec($query);
     }
     
     public static function find($lex1, $lex2 = NULL, $lex3 = NULL) {
@@ -67,35 +68,34 @@ class Markov {
         
         $query = sprintf(
             "SELECT * FROM markov WHERE lex1='%s'",
-            $db->escapeString($lex1)
+            sqlite_escape_string($lex1)
         );
         
         if ($lex2) {
             $query .= sprintf(
                 " AND lex2='%s'",
-                $db->escapeString($lex2)
+                sqlite_escape_string($lex2)
             );
         }
         
         if ($lex3) {
             $query .= sprintf(
                 " AND lex3='%s'",
-                $db->escapeString($lex3)
+                sqlite_escape_string($lex3)
             );
         }
         
         $query .= ";";
         
         if (($ret = $db->query($query)) === false) {
-            return false;
+            throw new Exception('query failed.');
         }
         
-        $rows = array();
+        return $ret->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public static function exist($lex1, $lex2 = NULL, $lex3 = NULL) {
         
-        while ($row = $ret->fetchArray()) {
-            $rows[] = $row;
-        }
-        
-        return $rows;
+        return (count(self::find($lex1, $lex2, $lex3)) > 0);
     }
 }

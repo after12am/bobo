@@ -56,19 +56,27 @@ class BoobyBot extends TwitterStream {
                 continue;
             }
             
-            $db->exec("BEGIN DEFERRED;");
-            
-            $data = array(
-                'id' => $twitter['id_str'],
-                'screen_name' => $twitter['user']['screen_name'],
-                'tweet' => $this->clean($twitter['text'])
-            );
-            
-            // save to database
-            Tweet::save(array($data));
-            $this->markovAgent->set($data['tweet']);
-            
-            $db->exec("COMMIT;");
+            try {
+                
+                // save to database
+                $db->beginTransaction();
+                
+                $data = array(
+                    'id' => $twitter['id_str'],
+                    'screen_name' => $twitter['user']['screen_name'],
+                    'tweet' => $this->clean($twitter['text'])
+                );
+                
+                Tweet::save(array($data));
+                $this->markovAgent->set($data['tweet']);
+                
+                $db->commit();
+                
+            } catch (Exception $e) {
+                echo $e->getTraceAsString();
+                $db->rollback();
+                continue;
+            }
             
             echo "@" . $data['screen_name'] . ":" . $data['tweet'] . "\n";
             
@@ -90,7 +98,7 @@ class BoobyBot extends TwitterStream {
         if (in_array($id, $ignore_ids)) return false;
         if (in_array($lang, $allow_langs) === false) return false;
         if ($text === '') return false;
-        if (Tweet::isExist($id)) return false;
+        if (Tweet::exist($id)) return false;
         
         return true;
     }

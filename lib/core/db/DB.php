@@ -1,5 +1,5 @@
 <?
-class DB extends SQLite3 {
+class DB {
     
     static protected $instance = NULL;
     
@@ -8,45 +8,36 @@ class DB extends SQLite3 {
         if (file_exists(PATH_TO_JOURNAL)) {
             unlink(PATH_TO_JOURNAL);
         }
-        
-        $this->open(PATH_TO_DB);
-    }
-    
-    public function __destruct() {
-        
-        $this->close();
     }
     
     public static function getInstance() {
         
         if (self::$instance === NULL) {
-            self::$instance = new DB();
+            self::$instance = new PDO('sqlite:markov.db');
+            
+            if (!self::$instance) {
+                die('database connection failed.');
+            }
         }
+        
         return self::$instance;
     }
     
     public static function setup() {
         
-        try {
-            // force to setup database.
-            if (file_exists(PATH_TO_DB)) {
-                unlink(PATH_TO_DB);
-            }
-            
-            // setup database
-            $db = DB::getInstance();
-            
-            if ($db->exec(file_get_contents(PATH_TO_SQL))) {
-                echo 'database setup is succeeded.';
-            } else {
-                echo 'database setup is failed.';
-            }
-            
-            $db->close();
-            
-        } catch (Exception $e) {
-            echo $e->getTraceAsString();
-            exit(0);
+        // force to setup database.
+        if (file_exists(PATH_TO_DB)) {
+            unlink(PATH_TO_DB);
+        }
+        
+        $db = DB::getInstance();
+        
+        $ret = $db->exec(file_get_contents(PATH_TO_SQL));
+        
+        if ($ret === false) {
+            echo 'database setup failed.';
+        } else {
+            echo 'database setup succeeded.';
         }
     }
 }

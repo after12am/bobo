@@ -16,24 +16,39 @@ class Tweet {
         
         foreach ($rows as $d) {
             
-            if (!preg_match('/^[0-9]+$/', $d['id'])) return false;
-
-            $db = DB::getInstance();
-            $updated = @date("Y-m-d H:i:s");
-            
-            $query = sprintf(
-                "INSERT INTO tweet (id, screen_name, tweet, updated) VALUES (%s, '%s', '%s', '%s');",
-                $d['id'],
-                $db->escapeString($d['screen_name']),
-                $db->escapeString($d['tweet']),
-                $db->escapeString($updated)
-            );
-            
-            $db->query($query);
+            if (1) {
+                self::insert($d['id'], $d['screen_name'], $d['tweet']);
+            } else {
+                
+            }
         }
     }
     
-    public static function isExist($id) {
+    private static function insert($id, $screen_name, $tweet) {
+        
+        if (!preg_match('/^[0-9]+$/', $id)) {
+            return false;
+        }
+        
+        $db = DB::getInstance();
+        $updated = @date("Y-m-d H:i:s");
+        
+        $query = sprintf(
+            "INSERT INTO tweet (id, screen_name, tweet, updated) VALUES (%s, '%s', '%s', '%s');",
+            $id,
+            sqlite_escape_string($screen_name),
+            sqlite_escape_string($tweet),
+            sqlite_escape_string($updated)
+        );
+        
+        return $db->exec($query);
+    }
+    
+    private static function update() {
+        
+    }
+    
+    public static function exist($id) {
         
         if (!preg_match('/^[0-9]+$/', $id)) return false;
         
@@ -44,6 +59,10 @@ class Tweet {
             $id
         );
         
-        return $db->query($query)->fetchArray();
+        if (($ret = $db->query($query)) === false) {
+            throw new Exception('query failed.');
+        }
+        
+        return (count($ret->fetchAll(PDO::FETCH_ASSOC)) > 0);
     }
 }
