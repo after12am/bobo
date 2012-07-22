@@ -2,7 +2,7 @@
 <?
 require_once(dirname(__FILE__) . '/../lib/bootstrap.php');
 require_once('bot/BoobyBot.php');
-require_once('db/DB.php');
+require_once('DB.php');
 
 function help() {
     echo "\n  usage : php bot.php [option]\n";
@@ -40,7 +40,7 @@ function pick_up($num) {
         TWITTER_ACCESS_TOKEN, 
         TWITTER_ACCESS_TOKEN_SECRET
     );
-    $bot->pickUp($num, array(), array('ja'));
+    $bot->pickup($num, array(), array('ja'));
 }
 
 function main($argv) {
