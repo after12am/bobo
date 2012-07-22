@@ -13,6 +13,10 @@ class BoobyBot extends TwitterStream {
         parent::__construct($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret);
     }
     
+    public function setup() {
+        DB::setup();
+    }
+    
     public function post() {
         
         $status = 'statuses/update';

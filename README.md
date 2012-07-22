@@ -22,4 +22,4 @@ To tweet, run the following commands.
 
 ## Notes
 
-* You can't tweet When you post a tweet without picking up tweets. At first, you run `./bot pick`.
+* You can't tweet without picking up timeline. run `./bot pick` before run `./bot post`.
