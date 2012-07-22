@@ -31,12 +31,14 @@ class Markov {
     private static function insert($lex1, $lex2, $lex3) {
         
         $db = DB::getInstance();
+        $updated = @date("Y-m-d H:i:s");
         
         $query = sprintf(
-            "INSERT INTO markov (lex1, lex2, lex3) VALUES ('%s', '%s', '%s');",
+            "INSERT INTO markov (lex1, lex2, lex3, updated) VALUES ('%s', '%s', '%s', '%s');",
             $db->escapeString($lex1),
             $db->escapeString($lex2),
-            $db->escapeString($lex3)
+            $db->escapeString($lex3),
+            $db->escapeString($updated)
         );
         
         return $db->query($query);
@@ -45,10 +47,12 @@ class Markov {
     private static function update($lex1, $lex2, $lex3, $cnt) {
         
         $db = DB::getInstance();
+        $updated = @date("Y-m-d H:i:s");
         
         $query = sprintf(
-            "UPDATE markov set cnt=%s WHERE lex1='%s' AND lex2='%s' AND lex3='%s';",
+            "UPDATE markov set cnt=%s, updated='%s' WHERE lex1='%s' AND lex2='%s' AND lex3='%s';",
             $cnt,
+            $db->escapeString($updated),
             $db->escapeString($lex1),
             $db->escapeString($lex2),
             $db->escapeString($lex3)
@@ -94,24 +98,4 @@ class Markov {
         
         return $rows;
     }
-    
-    // private static function cnt($lex1, $lex2, $lex3) {
-    //     
-    //     $db = DB::getInstance();
-    //     
-    //     $query = sprintf(
-    //         "SELECT cnt FROM markov WHERE lex1='%s' AND lex2='%s' AND lex3='%s';",
-    //         $db->escapeString($lex1),
-    //         $db->escapeString($lex2),
-    //         $db->escapeString($lex3)
-    //     );
-    //     
-    //     if (($ret = $db->query($query)) === false) {
-    //         return false;
-    //     }
-    //     
-    //     $ret = $ret->fetchArray();
-    //     
-    //     return $ret['cnt'];
-    // }
 }
