@@ -92,16 +92,20 @@ class BoobyBot extends TwitterStream {
         return trim($cleaned);
     }
     
-    public function pickUp($ignore_ids = array(), $allow_langs = array()) {
+    /*
+        @int $num   pick up num
+    */
+    public function pickUp($num, $ignore_ids = array(), $allow_langs = array()) {
         
+        $i = 0;
+        
+        $db = DB::getInstance();
         // no need for deleting file pointer resource
         $fp = $this->open();
         
         while($json = fgets($fp)) {
             
-            $twitter = json_decode($json, true);
-            
-            if ($twitter === NULL) {
+            if (($twitter = json_decode($json, true)) === NULL) {
                 continue;
             }
             
@@ -112,11 +116,7 @@ class BoobyBot extends TwitterStream {
             $id = $twitter['id_str'];
             $name = $twitter['user']['screen_name'];
             $cleaned = $this->clean($twitter['text']);
-            
-            $db = DB::getInstance();
-            $db->exec("BEGIN DEFERRED;");
-            
-            $rows = array(
+            $twiRows = array(
                 array(
                     'id' => $id,
                     'screen_name' => $name,
@@ -124,28 +124,28 @@ class BoobyBot extends TwitterStream {
                 )
             );
             
-            Tweet::save($rows);
-            
             // I evacuate URL.
-            $shelter = $this->shelter($cleaned);
+            $shelter = $this->backup($cleaned);
             $maData = $this->maService->words($shelter['text']);
-            $rows = $this->ma2Markov($maData);
+            $marRows = $this->ma2Markov($maData);
+            $marRows = $this->restore($shelter, $marRows);
             
-            // I wake up URL that was evacuated
-            if (isset($shelter['match'])) {
-                foreach ($rows as $i => $row) {
-                    foreach ($row as $j => $c) {
-                        if ($c === $shelter['rep']) {
-                            $rows[$i][$j] = $shelter['match'];
-                        }
-                    }
-                }
-            }
-            
-            Markov::save($rows);
+            $db->exec("BEGIN DEFERRED;");
+            Tweet::save($twiRows);
+            Markov::save($marRows);
             $db->exec("COMMIT;");
             
             echo "@" . $name . ":" . $cleaned . "\n";
+            
+            $i++;
+            
+            if ($num !== NULL) {
+                if (preg_match('/^[0-9]+$/', $num)) {
+                    if ($i > $num) {
+                        break;
+                    }
+                }
+            }
         }
     }
     
@@ -179,10 +179,9 @@ class BoobyBot extends TwitterStream {
         return $rows;
     }
     
-    private function shelter($text) {
+    private function backup($text) {
         
-        // shelter URL
-        
+        // backup URL
         $pat = "/https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/";
         $rep = "REPLACEDURL";
         
@@ -190,13 +189,46 @@ class BoobyBot extends TwitterStream {
         preg_match($pat, $text, $m);
         $text = preg_replace($pat, $rep, $text);
         
-        $ret = array(
+        $shelter = array(
             'text' => $text,    // replaced text
             'match' => $m[0],   // match text
             'rep' => $rep,      // replace text
             'pat' => $pat       // pattern
         );
         
-        return $ret;
+        return $shelter;
+    }
+    
+    /*
+        $shelter = array(
+            'text' => $text,    // replaced text
+            'match' => $m[0],   // match text
+            'rep' => $rep,      // replace text
+            'pat' => $pat       // pattern
+        );
+        
+        $rows = array(
+            array(
+                $r1['surface'],
+                $r2['surface'],
+                $r3['surface']
+            ),
+            ...
+        );
+    */
+    private function restore($shelter = array(), $rows = array()) {
+        
+        // I wake up URL that was evacuated
+        if (isset($shelter['match'])) {
+            foreach ($rows as $i => $row) {
+                foreach ($row as $j => $c) {
+                    if ($c === $shelter['rep']) {
+                        $rows[$i][$j] = $shelter['match'];
+                    }
+                }
+            }
+        }
+        
+        return $rows;
     }
 }

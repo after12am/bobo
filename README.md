@@ -12,11 +12,11 @@ A bot tweets a trap message that is artificially created using a second-order Ma
     cd /path/to/bin
     ./bot setup
 
-To gather tweets, run the following commands in a new terminal.
+To gather tweets, run the following commands. If you want to set limit, set `pick up num` after `./bot pick`.
 
-    ./bot pick
+    ./bot pick [pick up num]
 
-To tweet, run the following commands in a new terminal.
+To tweet, run the following commands.
 
     ./bot post
 

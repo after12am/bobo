@@ -31,7 +31,7 @@ function post() {
     $bot->post();
 }
 
-function pick_up() {
+function pick_up($num) {
     $bot = new BoobyBot(
         TWITTER_USERID, 
         TWITTER_PASSWD, 
@@ -40,7 +40,7 @@ function pick_up() {
         TWITTER_ACCESS_TOKEN, 
         TWITTER_ACCESS_TOKEN_SECRET
     );
-    $bot->pickUp(array(), array('ja'));
+    $bot->pickUp($num, array(), array('ja'));
 }
 
 function main($argv) {
@@ -56,7 +56,7 @@ function main($argv) {
             break;
             
         case 'pick':
-            pick_up();
+            pick_up($argv[2]);
             break;
             
         case 'h':
