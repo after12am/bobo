@@ -16,7 +16,7 @@ function help() {
 
 function main($argv) {
     
-	$bot = new BoobyBot(
+    $bot = new BoobyBot(
         TWITTER_USERID, 
         TWITTER_PASSWD, 
         TWITTER_CONSUMER_KEY, 
