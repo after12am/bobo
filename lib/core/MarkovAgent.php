@@ -5,17 +5,18 @@ require_once('yahoo/MAService.php');
 
 class MarkovAgent {
     
-    protected $maService;
+    protected $ma;
+    public $signature;
     
     public function __construct() {
         
-        $this->maService = new MAService(YAHOO_APP_ID);
+        $this->ma = new MAService(YAHOO_APP_ID);
     }
     
-    public function set($text) {
+    public function heap($text) {
         
         $backup = $this->backup($text);
-        $data = $this->maService->words($backup['text']);
+        $data = $this->ma->words($backup['text']);
         $rows = $this->fix($data);
         $rows = $this->restore($backup, $rows);
         
@@ -23,7 +24,7 @@ class MarkovAgent {
         Markov::save($rows);
     }
     
-    public function get($sign = '') {
+    public function get() {
         
         $text = '';
         
@@ -61,7 +62,7 @@ class MarkovAgent {
             $text .= $add['lex1'] . $add['lex2'];
         }
         
-        return "$text $sign";
+        return "$text {$this->signature}";
     }
     
     private function fix($ma) {
@@ -100,15 +101,15 @@ class MarkovAgent {
         $pat = "/https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/";
         $rep = "REPLACEDURL";
         
-        $match = array();
-        preg_match($pat, $text, $match);
+        $mat = array();
+        preg_match($pat, $text, $ma);
         $text = preg_replace($pat, $rep, $text);
         
         $backup = array(
-            'text' => $text,        // replaced text
-            'match' => $match[0],   // match text
-            'rep' => $rep,          // replace text
-            'pat' => $pat           // pattern
+            'text' => $text,    // replaced text
+            'match' => $ma[0],  // match text
+            'rep' => $rep,      // replace text
+            'pat' => $pat       // pattern
         );
         
         return $backup;
@@ -116,10 +117,10 @@ class MarkovAgent {
     
     /*
         $backup = array(
-            'text' => $text,        // replaced text
-            'match' => $match[0],   // match text
-            'rep' => $rep,          // replace text
-            'pat' => $pat           // pattern
+            'text' => $text,      // replaced text
+            'match' => $mat[0],   // match text
+            'rep' => $rep,        // replace text
+            'pat' => $pat         // pattern
         );
         
         $rows = array(

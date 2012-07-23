@@ -7,23 +7,27 @@ require_once('twitter/TwitterStream.php');
 class BoobyBot extends TwitterStream {
     
     protected $markovAgent;
+    public $deny_id = array();
+    public $allow_lang = array();
     
     public function __construct($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret) {
+        
         $this->markovAgent = new MarkovAgent();
         parent::__construct($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret);
     }
     
     public function setup() {
+        
         DB::setup();
     }
     
-    public function post() {
+    public function post($signature = '') {
         
         $status = 'statuses/update';
-        $hash = '#bot';
         
         // get artificially created text using markov chain method
-        $tweet = $this->markovAgent->get($hash);
+        $this->markovAgent->signature = $signature;
+        $tweet = $this->markovAgent->get();
         
         // post to twitter
         $ret = $this->twitter->post($status, array('status' => $tweet));
@@ -35,12 +39,14 @@ class BoobyBot extends TwitterStream {
         }
         
         echo "@dev_12am:" . $tweet . "\n";
+        
+        return $tweet;
     }
     
     /*
         @int $num   pick up num
     */
-    public function pickup($num, $ignore_ids = array(), $allow_langs = array()) {
+    public function pickup($num) {
         
         if (!preg_match('/^[0-9]+$/', $num)) {
             $num = NULL;
@@ -56,64 +62,72 @@ class BoobyBot extends TwitterStream {
                 continue;
             }
             
-            if ($this->filter($twitter, $ignore_ids, $allow_langs) === false) {
+            if (($twitter = $this->filter($twitter)) === false) {
                 continue;
             }
             
             try {
                 
-                // save to database
                 $db->beginTransaction();
-                
-                $data = array(
-                    'id' => $twitter['id_str'],
-                    'screen_name' => $twitter['user']['screen_name'],
-                    'tweet' => $this->clean($twitter['text'])
-                );
-                
-                Tweet::save(array($data));
-                $this->markovAgent->set($data['tweet']);
-                
+                $this->save($twitter);
                 $db->commit();
                 
             } catch (Exception $e) {
-                echo $e->getTraceAsString();
                 $db->rollback();
+                echo $e->getTraceAsString();
                 continue;
             }
             
-            echo "@" . $data['screen_name'] . ":" . $data['tweet'] . "\n";
+            echo "@" . $twitter['user']['screen_name'] . ":" . $twitter['text'] . "\n";
             
-            if ($num !== NULL) {
-                $i++;
-                if ($i >= $num) {
-                    break;
-                }
+            if ($num === NULL) {
+                continue;
+            }
+            
+            $i++;
+            if ($i >= $num) {
+                break;
             }
         }
     }
     
-    private function filter($twitter, $ignore_ids = array(), $allow_langs = array()) {
+    private function save($twitter) {
         
-        $id = $twitter['id_str'];
-        $lang = $twitter['user']['lang'];
-        $text = $twitter['text'];
+        $data = array(
+            'id' => $twitter['id_str'],
+            'screen_name' => $twitter['user']['screen_name'],
+            'tweet' => $twitter['text']
+        );
         
-        if (in_array($id, $ignore_ids)) return false;
-        if (in_array($lang, $allow_langs) === false) return false;
-        if ($text === '') return false;
-        if (Tweet::exist($id)) return false;
+        Tweet::save(array($data));
         
-        return true;
+        $this->markovAgent->heap($data['tweet']);
     }
     
-    private function clean($text) {
+    private function filter($twitter) {
         
-        $cleaned = preg_replace("(¥r¥n|¥r|¥n)", "", $text);
-        $cleaned = preg_replace("/(#.* |#.*　|#.*)/", "", $cleaned);
-        $cleaned = preg_replace("/( |　)*(QT|RT)( |　)*/", "", $cleaned);
-        $cleaned = preg_replace("/( |　|.)*@[0-9a-zA-Z_]+(:)*(| |　)*(さん)*(の|が|を)*/", "", $cleaned);
+        if (in_array($twitter['id_str'], $this->deny_id)) {
+            return false;
+        }
         
-        return trim($cleaned);
+        if (in_array($twitter['user']['lang'], $this->allow_lang) === false) {
+            return false;
+        }
+        
+        if (Tweet::exist($id)) {
+            return false;
+        }
+        
+        $twitter['text'] = preg_replace("(¥r¥n|¥r|¥n)", "", $twitter['text']);
+        $twitter['text'] = preg_replace("/(#.* |#.*　|#.*)/", "", $twitter['text']);
+        $twitter['text'] = preg_replace("/( |　)*(QT|RT)( |　)*/", "", $twitter['text']);
+        $twitter['text'] = preg_replace("/( |　|.)*@[0-9a-zA-Z_]+(:)*(| |　)*(さん)*(の|が|を)*/", "", $twitter['text']);
+        $twitter['text'] = trim($twitter['text']);
+        
+        if ($twitter['text'] === '') {
+            return false;
+        }
+        
+        return $twitter;
     }
 }

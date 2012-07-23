@@ -25,6 +25,8 @@ function main($argv) {
         TWITTER_ACCESS_TOKEN_SECRET
     );
 	
+	$bot->allow_lang = array('ja');
+	
     switch ($argv[1]) {
         
         case 'setup':
@@ -32,11 +34,11 @@ function main($argv) {
             break;
             
         case 'post':
-            $bot->post();
-            break;
+            $bot->post('#bot');
+			break;
             
         case 'pick':
-            $bot->pickup($argv[2], array(), array('ja'));
+            $bot->pickup($argv[2]);
             break;
             
         case 'h':
