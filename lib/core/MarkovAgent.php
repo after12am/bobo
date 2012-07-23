@@ -13,12 +13,17 @@ class MarkovAgent {
         $this->ma = new MAService(YAHOO_APP_ID);
     }
     
-    public function heap($text) {
+    public function heap($id, $text) {
         
         $backup = $this->backup($text);
         $data = $this->ma->words($backup['text']);
         $rows = $this->fix($data);
         $rows = $this->restore($backup, $rows);
+        
+        // set tweet id
+        foreach ($rows as $k => $row) {
+            $rows[$k]['id'] = $id;
+        }
         
         // save to database
         Markov::save($rows);
@@ -33,7 +38,7 @@ class MarkovAgent {
         
         if (count($rows) === 0) {
             echo "we can't find tweet candidate.\n";
-            echo "because of this reason, tweet request was canceled.\n";
+            echo "tweet request was canceled.\n";
             exit(0);
         }
         
@@ -86,9 +91,9 @@ class MarkovAgent {
             }
             
             $rows[] = array(
-                $r1['surface'],
-                $r2['surface'],
-                $r3['surface']
+                'lex1' => $r1['surface'],
+                'lex2' => $r2['surface'],
+                'lex3' => $r3['surface']
             );
         }
         

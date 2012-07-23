@@ -97,7 +97,7 @@ class BoobyBot extends TwitterStream {
         
         Tweet::save(array($data));
         
-        $this->markovAgent->heap($data['tweet']);
+        $this->markovAgent->heap($data['id'], $data['tweet']);
     }
     
     private function filter($twitter) {
