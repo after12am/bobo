@@ -46,10 +46,10 @@ class BoobyBot extends TwitterStream {
     /*
         @int $num   pick up num
     */
-    public function pickup($num) {
+    public function pickup($num = 1000) {
         
         if (!preg_match('/^[0-9]+$/', $num)) {
-            $num = NULL;
+            $num = 1000;
         }
         
         $db = DB::getInstance();
@@ -79,10 +79,6 @@ class BoobyBot extends TwitterStream {
             }
             
             echo "@" . $twitter['user']['screen_name'] . ":" . $twitter['text'] . "\n";
-            
-            if ($num === NULL) {
-                continue;
-            }
             
             $i++;
             if ($i >= $num) {
