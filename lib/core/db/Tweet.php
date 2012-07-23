@@ -31,7 +31,7 @@ class Tweet {
         }
         
         $db = DB::getInstance();
-        $updated = @date("Y-m-d H:i:s");
+        $updated = date("Y-m-d H:i:s");
         
         $query = sprintf(
             "INSERT INTO tweet (id, screen_name, tweet, updated) VALUES (%s, '%s', '%s', '%s');",

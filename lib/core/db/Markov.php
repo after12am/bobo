@@ -32,7 +32,7 @@ class Markov {
     private static function insert($lex1, $lex2, $lex3) {
         
         $db = DB::getInstance();
-        $updated = @date("Y-m-d H:i:s");
+        $updated = date("Y-m-d H:i:s");
         
         $query = sprintf(
             "INSERT INTO markov (lex1, lex2, lex3, updated) VALUES ('%s', '%s', '%s', '%s');",
