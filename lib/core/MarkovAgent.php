@@ -6,30 +6,38 @@ require_once('yahoo/MAService.php');
 class MarkovAgent {
     
     protected $ma;
-    public $signature;
     
     public function __construct() {
         
         $this->ma = new MAService(YAHOO_APP_ID);
     }
     
-    public function heap($id, $text) {
+    /*
+        $data = array(
+            'text' => $text
+        );
+    */
+    public function heap($data) {
+        
+        $this->heapText($data['text']);
+    }
+    
+    public function heapText($text) {
+        
+        if (!$text) {
+            return;
+        }
         
         $backup = $this->backup($text);
         $data = $this->ma->words($backup['text']);
         $rows = $this->fix($data);
         $rows = $this->restore($backup, $rows);
         
-        // set tweet id
-        foreach ($rows as $k => $row) {
-            $rows[$k]['id'] = $id;
-        }
-        
         // save to database
         Markov::save($rows);
     }
     
-    public function get() {
+    public function getText($signature = '') {
         
         $text = '';
         
@@ -67,7 +75,7 @@ class MarkovAgent {
             $text .= $add['lex1'] . $add['lex2'];
         }
         
-        return "$text {$this->signature}";
+        return "$text $signature";
     }
     
     private function fix($ma) {

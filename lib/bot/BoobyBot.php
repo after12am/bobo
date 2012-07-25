@@ -29,8 +29,7 @@ class BoobyBot extends TwitterSampleStream {
         $status = 'statuses/update';
         
         // get artificially created text using markov chain method
-        $this->markovAgent->signature = $signature;
-        $tweet = $this->markovAgent->get();
+        $tweet = $this->markovAgent->getText($signature);
         
         // post to twitter
         $ret = $this->twitter->post($status, array('status' => $tweet));
