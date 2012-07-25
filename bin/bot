@@ -38,7 +38,11 @@ function main($argv) {
 			break;
             
         case 'pick':
-            $bot->pickup($argv[2]);
+            if (preg_match('/^[0-9].$/', $argv[2])) {
+                $bot->pickup($argv[2]);
+            } else {
+                $bot->pickup();
+            }
             break;
             
         case 'h':

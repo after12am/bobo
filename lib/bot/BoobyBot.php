@@ -48,10 +48,6 @@ class BoobyBot extends TwitterStream {
     */
     public function pickup($num = 1000) {
         
-        if (!preg_match('/^[0-9]+$/', $num)) {
-            $num = 1000;
-        }
-        
         $db = DB::getInstance();
         $fp = $this->open(); // no need for deleting file pointer resource
         $i = 0;
@@ -67,11 +63,9 @@ class BoobyBot extends TwitterStream {
             }
             
             try {
-                
                 $db->beginTransaction();
                 $this->save($twitter);
                 $db->commit();
-                
             } catch (Exception $e) {
                 $db->rollback();
                 echo $e->getTraceAsString();
