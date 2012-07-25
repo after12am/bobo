@@ -2,17 +2,20 @@
 require_once('DB.php');
 require_once('Tweet.php');
 require_once('MarkovAgent.php');
-require_once('twitter/TwitterStream.php');
+require_once('twitter/TwitterSampleStream.php');
 
-class BoobyBot extends TwitterStream {
+class BoobyBot extends TwitterSampleStream {
     
-    protected $markovAgent;
     public $deny_id = array();
     public $allow_lang = array();
+    
+    protected $markovAgent;
+    
     
     public function __construct($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret) {
         
         $this->markovAgent = new MarkovAgent();
+        
         parent::__construct($userid, $passwd, $consumer_key, $consumer_secret, $access_token, $access_token_secret);
     }
     
