@@ -93,7 +93,7 @@ class BoobyBot extends TwitterSampleStream {
         
         Tweet::save(array($data));
         
-        $this->markovAgent->heap($data['id'], $data['tweet']);
+        $this->markovAgent->heapText($data['tweet']);
     }
     
     private function filter($twitter) {

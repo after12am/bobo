@@ -5,6 +5,7 @@ class DB {
     
     public function __construct() {
         
+        // if journal file have been created, we delete it for data consistency.
         if (file_exists(PATH_TO_JOURNAL)) {
             unlink(PATH_TO_JOURNAL);
         }

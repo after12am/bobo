@@ -13,13 +13,12 @@ CREATE INDEX tweet_idx_1 ON tweet(`updated`);
 
 CREATE TABLE IF NOT EXISTS `markov` (
   `id` integer primary key,
-  `tweet_id` integer,
   `lex1` text NOT NULL,
   `lex2` text NOT NULL,
-  `lex3` text NOT NULL
+  `lex3` text NOT NULL,
+  `updated` text NOT NULL
 );
 
-CREATE INDEX markov_idx_1 ON markov(`tweet_id`);
-CREATE INDEX markov_idx_2 ON markov(`lex1`);
-CREATE INDEX markov_idx_3 ON markov(`lex2`);
-CREATE INDEX markov_idx_4 ON markov(`lex3`);
+CREATE INDEX markov_idx_1 ON markov(`lex1`);
+CREATE INDEX markov_idx_2 ON markov(`lex2`);
+CREATE INDEX markov_idx_3 ON markov(`lex3`);
