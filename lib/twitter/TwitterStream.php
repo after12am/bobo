@@ -38,7 +38,8 @@ abstract class TwitterStream extends TwitterAPI {
         $this->fp = fsockopen("ssl://{$host}", $port, $this->errno, $this->errmsg, $timeout);
         
         if ($this->fp === false) {
-             return false;
+            echo "\n[errno {$this->errno}] {$this->errmsg}\n\n";
+            return false;
         }
         
         $this->connect();

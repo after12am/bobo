@@ -54,6 +54,10 @@ class BoobyBot extends TwitterSampleStream {
         $fp = $this->open(); // no need for deleting file pointer resource
         $i = 0;
         
+        if ($fp === false) {
+            return;
+        }
+        
         while($json = fgets($fp)) {
             
             if (($twitter = json_decode($json, true)) === NULL) {
