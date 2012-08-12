@@ -7,10 +7,10 @@ function help() {
     echo "\n  usage : php bot.php [option]\n";
     echo "\n  the below are available options.\n";
     echo "\n";
-    echo "  setup	setup database.\n";
-    echo "  post	tweet using a second-order markov chain.\n";
-    echo "  pick	pick up recent tweets was filtered by language with jp.\n";
-    echo "  help    \n";
+    echo "  setup   setup database.\n";
+    echo "  post    tweet using a second-order markov chain.\n";
+    echo "  pick    pick up recent tweets was filtered by language with jp.\n";
+    echo "  -help    \n";
     echo "\n";
 }
 
@@ -24,9 +24,9 @@ function main($argv) {
         TWITTER_ACCESS_TOKEN, 
         TWITTER_ACCESS_TOKEN_SECRET
     );
-	
-	$bot->allow_lang = array('ja');
-	
+    
+    $bot->allow_lang = array('ja');
+    
     switch ($argv[1]) {
         
         case 'setup':
@@ -35,18 +35,18 @@ function main($argv) {
             
         case 'post':
             $bot->post('#bot');
-			break;
-            
-        case 'pick':
-            if (preg_match('/^[0-9].$/', $argv[2])) {
-                $bot->pickup($argv[2]);
-            } else {
-                $bot->pickup();
-            }
             break;
             
-        case 'h':
-        case 'help':
+        case 'pick':
+            $n = 1000;
+            if (preg_match('/^[0-9].$/', $argv[2])) {
+                $n = $argv[2];
+            }
+            $bot->pickup($n);
+            break;
+            
+        case '-h':
+        case '-help':
         default:
             help();
             break;

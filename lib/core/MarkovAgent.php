@@ -12,29 +12,32 @@ class MarkovAgent {
         $this->ma = new MAService(YAHOO_APP_ID);
     }
     
-    /*
-        $data = array(
-            'text' => $text
-        );
-    */
-    public function heap($data) {
+    public function save($twitter) {
         
-        $this->heapText($data['text']);
-    }
-    
-    public function heapText($text) {
-        
-        if (!$text) {
-            return;
+        if (Tweet::exist($twitter['id_str'])) {
+            return false;
         }
         
-        $backup = $this->backup($text);
-        $data = $this->ma->words($backup['text']);
-        $rows = $this->fix($data);
-        $rows = $this->restore($backup, $rows);
+        $data = array(
+            'id' => $twitter['id_str'],
+            'screen_name' => $twitter['user']['screen_name'],
+            'tweet' => $twitter['text']
+        );
         
-        // save to database
-        Markov::save($rows);
+        $db = DB::getInstance();
+        $db->beginTransaction();
+        
+        try {
+            Tweet::save($data);
+            $this->heapText($data['tweet']);
+            $db->commit();
+        } catch (Exception $e) {
+            echo $e->getTraceAsString();
+            $db->rollback();
+            return false;
+        }
+        
+        return true;
     }
     
     public function getText($signature = '') {
@@ -76,6 +79,22 @@ class MarkovAgent {
         }
         
         return "$text $signature";
+    }
+    
+    private function heapText($text) {
+        
+        if (!$text) {
+            return;
+        }
+        
+        $backup = $this->backup($text);
+        $data = $this->ma->words($backup['text']);
+        $rows = $this->fix($data);
+        $rows = $this->restore($backup, $rows);
+        
+        foreach ($rows as $data) {
+            Markov::save($data);
+        }
     }
     
     private function fix($ma) {

@@ -12,15 +12,10 @@ class Tweet {
             ...
         );
     */
-    public static function save($rows) {
+    public static function save($data) {
         
-        foreach ($rows as $d) {
-            
-            if (1) {
-                self::insert($d['id'], $d['screen_name'], $d['tweet']);
-            } else {
-                
-            }
+        if (1) {
+            self::insert($data['id'], $data['screen_name'], $data['tweet']);
         }
     }
     

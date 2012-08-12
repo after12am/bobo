@@ -5,7 +5,6 @@ class TwitterSampleStream extends TwitterStream {
     
     const PATH = "/1/statuses/sample.json";
     
-    
     protected function connect() {
         
         $host = self::HOST;

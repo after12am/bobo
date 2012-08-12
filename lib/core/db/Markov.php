@@ -14,13 +14,12 @@ class Markov {
             ...
         );
     */
-    public static function save($rows) {
+    public static function save($data) {
         
         $updated = date('Y-m-d H:i:s');
         
-        foreach ($rows as $k => $row) {
-            
-            self::insert($row['lex1'], $row['lex2'], $row['lex3'], $updated);
+        if (1) {
+            self::insert($data['lex1'], $data['lex2'], $data['lex3'], $updated);
         }
     }
     
