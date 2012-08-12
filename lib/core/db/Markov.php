@@ -3,27 +3,16 @@ require_once("DB.php");
 
 class Markov {
     
-    /*
-        $rows = array(
-            array(
-                $tweet_id
-                $lex1,
-                $lex2,
-                $lex3
-            ),
-            ...
-        );
-    */
-    public static function save($data) {
+    public function save($data) {
         
         $updated = date('Y-m-d H:i:s');
         
         if (1) {
-            self::insert($data['lex1'], $data['lex2'], $data['lex3'], $updated);
+            $this->insert($data['lex1'], $data['lex2'], $data['lex3'], $updated);
         }
     }
     
-    private static function insert($lex1, $lex2, $lex3, $updated) {
+    private function insert($lex1, $lex2, $lex3, $updated) {
         
         $db = DB::getInstance();
         
@@ -38,7 +27,7 @@ class Markov {
         return $db->exec($query);
     }
     
-    public static function find($lex1, $lex2 = NULL, $lex3 = NULL) {
+    public function find($lex1, $lex2 = NULL, $lex3 = NULL) {
         
         $db = DB::getInstance();
         
@@ -70,7 +59,7 @@ class Markov {
         return $ret->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    private static function exist($id, $lex1, $lex2, $lex3) {
+    private function exist($id, $lex1, $lex2, $lex3) {
         
         $db = DB::getInstance();
         

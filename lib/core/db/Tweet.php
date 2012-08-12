@@ -3,23 +3,14 @@ require_once("DB.php");
 
 class Tweet {
     
-    /*
-        $rows = array(
-            array(
-                'id' : $id,
-                'tweet' : $tweet
-            ),
-            ...
-        );
-    */
-    public static function save($data) {
+    public function save($data) {
         
         if (1) {
-            self::insert($data['id'], $data['screen_name'], $data['tweet']);
+            $this->insert($data['id'], $data['screen_name'], $data['tweet']);
         }
     }
     
-    private static function insert($id, $screen_name, $tweet) {
+    private function insert($id, $screen_name, $tweet) {
         
         if (!preg_match('/^[0-9]+$/', $id)) {
             return false;
@@ -39,11 +30,11 @@ class Tweet {
         return $db->exec($query);
     }
     
-    private static function update() {
+    private function update() {
         
     }
     
-    public static function exist($id) {
+    public function exist($id) {
         
         if (!preg_match('/^[0-9]+$/', $id)) return false;
         

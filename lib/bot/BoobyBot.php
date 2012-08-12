@@ -1,6 +1,5 @@
 <?
 require_once('DB.php');
-require_once('Tweet.php');
 require_once('MarkovAgent.php');
 require_once('twitter/TwitterSampleStream.php');
 

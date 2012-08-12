@@ -1,20 +1,42 @@
 <?
 require_once('DB.php');
 require_once('Markov.php');
+require_once('Tweet.php');
 require_once('yahoo/MAService.php');
 
 class MarkovAgent {
     
+    /**
+     * Yahoo MA service
+     *
+     * @var array
+     */
     protected $ma;
+    
+    /**
+     * Model
+     *
+     * @var array
+     */
+    protected $Tweet;
+    
+    /**
+     * Model
+     *
+     * @var array
+     */
+    protected $Markov;
     
     public function __construct() {
         
         $this->ma = new MAService(YAHOO_APP_ID);
+        $this->Markov = new Markov();
+        $this->Tweet = new Tweet();
     }
     
     public function save($twitter) {
         
-        if (Tweet::exist($twitter['id_str'])) {
+        if ($this->Tweet->exist($twitter['id_str'])) {
             return false;
         }
         
@@ -28,7 +50,7 @@ class MarkovAgent {
         $db->beginTransaction();
         
         try {
-            Tweet::save($data);
+            $this->Tweet->save($data);
             $this->heapText($data['tweet']);
             $db->commit();
         } catch (Exception $e) {
@@ -45,7 +67,7 @@ class MarkovAgent {
         $text = '';
         
         // begin
-        $rows = Markov::find('BOF');
+        $rows = $this->Markov->find('BOF');
         
         if (count($rows) === 0) {
             echo "we can't find tweet candidate.\n";
@@ -58,7 +80,7 @@ class MarkovAgent {
         
         while ($add['lex3'] !== 'EOF') {
             
-            $rows = Markov::find($add['lex3']);
+            $rows = $this->Markov->find($add['lex3']);
             
             // I don't understand why I can't get target rows.
             if (count($rows) === 0) {
@@ -93,7 +115,7 @@ class MarkovAgent {
         $rows = $this->restore($backup, $rows);
         
         foreach ($rows as $data) {
-            Markov::save($data);
+            $this->Markov->save($data);
         }
     }
     
