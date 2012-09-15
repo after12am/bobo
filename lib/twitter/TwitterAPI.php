@@ -1,7 +1,9 @@
 <?
 require_once('twitteroauth/twitteroauth.php');
 
-class TwitterAPI {
+class TwitterAPI extends TwitterOAuth {
+    
+    protected $twitter;
     
     public function __construct($consumer_key, $consumer_secret, $access_token, $access_token_secret) {
         
@@ -10,6 +12,6 @@ class TwitterAPI {
             exit(0);
         }
         
-        $this->twitter = new TwitterOAuth($consumer_key, $consumer_secret, $access_token, $access_token_secret);
+        parent::__construct($consumer_key, $consumer_secret, $access_token, $access_token_secret);
     }
 }

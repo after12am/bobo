@@ -62,7 +62,7 @@ class MarkovAgent {
         return true;
     }
     
-    public function getText($signature = '') {
+    public function text($hashtags = array()) {
         
         $text = '';
         
@@ -100,7 +100,9 @@ class MarkovAgent {
             $text .= $add['lex1'] . $add['lex2'];
         }
         
-        return "$text $signature";
+        $hashtags = implode(' ', $hashtags);
+        
+        return "$text $hashtags";
     }
     
     private function heapText($text) {

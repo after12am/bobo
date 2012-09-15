@@ -4,10 +4,10 @@ require_once('../lib/bootstrap.php');
 
 $option = $argv[1];
 
-if (is_file("../lib/commands/$option")) {
-    require_once("../lib/commands/$option");
+if (is_file("../lib/commands/$option.php")) {
+    require_once("../lib/commands/$option.php");
     exit;
 }
 
-require_once("../lib/commands/help");
+require_once("../lib/commands/help.php");
 exit;

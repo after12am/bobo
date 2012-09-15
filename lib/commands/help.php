@@ -1,5 +1,4 @@
-<?php
-
+<?
 echo "\n  usage : php bot.php [option]\n";
 echo "\n  the below are available options.\n";
 echo "\n";
