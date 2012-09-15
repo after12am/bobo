@@ -3,7 +3,7 @@ require_once('TwitterStream.php');
 
 class TwitterFilterStream extends TwitterStream {
     
-    const PATH = "/1/statuses/filter.json";
+    protected $path = "/1/statuses/filter.json";
     
     protected function connect() {
         

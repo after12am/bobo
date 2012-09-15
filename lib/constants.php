@@ -1,24 +1,15 @@
 <?
+/**
+ * Defines the twitter account setting for using twitter apis.
+ */
+Configure::write('twitter.user_id', '');
+Configure::write('twitter.password', '');
+Configure::write('twitter.consumer_key', '');
+Configure::write('twitter.consumer_secret', '');
+Configure::write('twitter.access_token', '');
+Configure::write('twitter.access_token_secret', '');
 
-/*
-    application configuration
-*/
-// relational path from db/DB.php
-define('PATH_TO_DB', dirname(__FILE__) . '/../bin/markov.db');
-define('PATH_TO_JOURNAL', dirname(__FILE__) . '/../bin/markov.db-journal');
-define('PATH_TO_SQL', dirname(__FILE__) . '/../sql/boobyTrap.sql');
-
-/*
-    twitter configuration
-*/
-define('TWITTER_USERID', '');
-define('TWITTER_PASSWD', '');
-define('TWITTER_CONSUMER_KEY', '');
-define('TWITTER_CONSUMER_SECRET', '');
-define('TWITTER_ACCESS_TOKEN', '');
-define('TWITTER_ACCESS_TOKEN_SECRET', '');
-
-/*
-    yahoo configuration
-*/
-define('YAHOO_APP_ID', '');
+/**
+ * Defines the yahoo api key when using yahoo apis.
+ */
+Configure::write('yahoo.app_id', '');

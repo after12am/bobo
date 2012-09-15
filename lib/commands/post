@@ -1,0 +1,53 @@
+<?php
+
+// post artificially created text using a second-order Markov chain to twitter.
+
+require_once('Configure.php');
+require_once('twitter/TwitterSampleStream.php');
+require_once('MarkovAgent.php');
+
+class Chatter extends TwitterSampleStream {
+    
+    protected $hashtags = array('#bot');
+    
+    public function __construct() {
+        
+        $user_id = Configure::read('twitter.user_id');
+        $password = Configure::read('twitter.password');
+        $consumer_key = Configure::read('twitter.consumer_key');
+        $consumer_secret = Configure::read('twitter.consumer_secret');
+        $access_token = Configure::read('twitter.access_token');
+        $access_token_secret = Configure::read('twitter.access_token_secret');
+        
+        parent::__construct(
+            $user_id, 
+            $password, 
+            $consumer_key, 
+            $consumer_secret, 
+            $access_token, 
+            $access_token_secret
+        );
+    }
+    
+    public function execute() {
+        
+        $agent = new MarkovAgent();
+        // get artificially created text using markov chain method
+        $tweet = $agent->getText(implode(' ', $this->hashtags));
+        
+        // tweet
+        $ret = $this->twitter->post('statuses/update', array('status' => $tweet));
+        
+        if ($ret->error) {
+            echo $ret->error . "\n";
+            exit(0);
+        }
+        
+        echo "@dev_12am:$tweet\n";
+        
+        return $tweet;
+    }
+}
+
+$command = new Chatter();
+$command->execute();

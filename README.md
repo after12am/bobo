@@ -9,13 +9,13 @@ BoobyTrap
 
 BoobyTrap requires some settings. Open `lib/constant.php` and fill the below blank.
 
-    define('TWITTER_USERID', '');
-    define('TWITTER_PASSWD', '');
-    define('TWITTER_CONSUMER_KEY', '');
-    define('TWITTER_CONSUMER_SECRET', '');
-    define('TWITTER_ACCESS_TOKEN', '');
-    define('TWITTER_ACCESS_TOKEN_SECRET', '');
-    define('YAHOO_APP_ID', '');
+    Configure::write('twitter.user_id', '');
+    Configure::write('twitter.password', '');
+    Configure::write('twitter.consumer_key', '');
+    Configure::write('twitter.consumer_secret', '');
+    Configure::write('twitter.access_token', '');
+    Configure::write('twitter.access_token_secret', '');
+    Configure::write('yahoo.app_id', '');
 
 ## Usage
 

@@ -1,0 +1,15 @@
+<?php
+
+// setup database command
+
+require_once('Configure.php');
+require_once('DB.php');
+
+$path = dirname(__FILE__).'../../../sql/boobyTrap.sql';
+$contents = file_get_contents($path);
+
+if ((DB::getInstance()->exec($contents)) === false) {
+    echo 'database setup failed.';
+} else {
+    echo 'database setup succeeded.';
+}

@@ -1,0 +1,84 @@
+<?php
+
+// Applied to the Markov chain with a morphological analysis.
+
+require_once('Configure.php');
+require_once('twitter/TwitterSampleStream.php');
+require_once('MarkovAgent.php');
+
+class Picker extends TwitterSampleStream {
+    
+    /**
+     * Number of picks up.
+     * @param int
+     */
+    protected $max;
+    
+    /**
+     * Allow languages.
+     * @param int
+     */
+    protected $langs = array('ja');
+    
+    
+    public function __construct($num) {
+        
+        $this->max = $num;
+        $user_id = Configure::read('twitter.user_id');
+        $password = Configure::read('twitter.password');
+        $consumer_key = Configure::read('twitter.consumer_key');
+        $consumer_secret = Configure::read('twitter.consumer_secret');
+        $access_token = Configure::read('twitter.access_token');
+        $access_token_secret = Configure::read('twitter.access_token_secret');
+        
+        parent::__construct(
+            $user_id, 
+            $password, 
+            $consumer_key, 
+            $consumer_secret, 
+            $access_token, 
+            $access_token_secret
+        );
+    }
+    
+    public function execute() {
+        
+        if (!$this->open()) return;
+        
+        $i = 0;
+        $agent = new MarkovAgent();
+        
+        while($res = fgets($this->fp)) {
+            
+            if ($i >= $this->max) break;
+            
+            $res = json_decode($res, true);
+            
+            if (!$res) continue;
+            if (!in_array($res['user']['lang'], $this->langs)) continue;
+            
+            $res['text'] = preg_replace("(¥r¥n|¥r|¥n)", "", $res['text']);
+            $res['text'] = preg_replace("/(#.* |#.*　|#.*)/", "", $res['text']);
+            $res['text'] = preg_replace("/( |　)*(QT|RT)( |　)*/", "", $res['text']);
+            $res['text'] = preg_replace("/( |　|.)*@[0-9a-zA-Z_]+(:)*(| |　)*(さん)*(の|が|を)*/", "", $res['text']);
+            $res['text'] = trim($res['text']);
+            
+            if (!$res['text']) continue;
+            
+            $agent->save($res);
+            
+            echo "@{$res['user']['screen_name']}:{$res['text']}\n";
+            $i++;
+        }
+    }
+}
+
+// pick up num
+if (preg_match('/^([0-9]{1,})$/', $argv[2])) {
+    $n = $argv[2];
+} else {
+    $n = 100;
+}
+
+$command = new Picker($n);
+$command->execute();

@@ -1,4 +1,5 @@
 <?
+require_once('Configure.php');
 require_once('constants.php');
 
 // set internal encoding with utf-8.

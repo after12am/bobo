@@ -2,6 +2,7 @@
 -- Table structure for table `markov`
 --
 
+DROP TABLE IF EXISTS `tweet`;
 CREATE TABLE IF NOT EXISTS `tweet` (
   `id` integer primary key,
   `screen_name` text NOT NULL,
@@ -11,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `tweet` (
 
 CREATE INDEX tweet_idx_1 ON tweet(`updated`);
 
+DROP TABLE IF EXISTS `markov`;
 CREATE TABLE IF NOT EXISTS `markov` (
   `id` integer primary key,
   `lex1` text NOT NULL,
