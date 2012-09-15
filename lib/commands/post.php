@@ -9,12 +9,6 @@ require_once('MarkovAgent.php');
 class Post extends TwitterSampleStream {
     
     /**
-     * Markov agent.
-     * @param object
-     */
-    protected $agent;
-    
-    /**
      * Defines hashtags with array.
      * @param array
      */
@@ -22,7 +16,6 @@ class Post extends TwitterSampleStream {
     
     public function __construct($hashtags = array('#bot')) {
         
-        $this->agent = new MarkovAgent();
         $this->hashtags = $hashtags;
         
         parent::__construct(
@@ -49,7 +42,8 @@ class Post extends TwitterSampleStream {
     
     public function execute() {
         
-        $this->post($this->agent->text($this->hashtags));
+        $agent = new MarkovAgent();
+        $this->post($agent->text($this->hashtags));
     }
 }
 

@@ -9,27 +9,21 @@ require_once('MarkovAgent.php');
 class Pick extends TwitterSampleStream {
     
     /**
-     * Markov agent.
-     * @param object
-     */
-    protected $agent;
-    
-    /**
      * Number of picks up.
      * @param int
      */
-    protected $max;
+    protected $num;
     
     /**
      * Allow languages.
      * @param array
      */
-    protected $langs = array('ja');
+    protected $langs;
     
-    public function __construct($num) {
+    public function __construct($num, $langs = array('ja')) {
         
-        $this->agent = new MarkovAgent();
-        $this->max = $num;
+        $this->num = $num;
+        $this->langs = array('ja');
         
         parent::__construct(
             Configure::read('twitter.user_id'),
@@ -47,40 +41,31 @@ class Pick extends TwitterSampleStream {
         $text = preg_replace("/(#.* |#.*　|#.*)/", "", $text);
         $text = preg_replace("/( |　)*(QT|RT)( |　)*/", "", $text);
         $text = preg_replace("/( |　|.)*@[0-9a-zA-Z_]+(:)*(| |　)*(さん)*(の|が|を)*/", "", $text);
-        
         return trim($text);
     }
     
     protected function save($res) {
         
         if (in_array($res['user']['lang'], $this->langs)) {
-            
             if ($res['text'] = $this->clean($res['text'])) {
-                
-                $this->agent->save($res);
-                
+                $agent = new MarkovAgent();
+                $agent->save($res);
                 echo "@{$res['user']['screen_name']}:{$res['text']}\n";
-                
                 return true;
             }
         }
-        
         return false;
     }
     
     public function execute() {
         
-        $this->open();
+        $i = 0;
         
-        if ($this->fp) {
-            
-            $i = 0;
+        if ($this->open()) {
             
             while($res = fgets($this->fp)) {
                 
-                if ($i >= $this->max) {
-                    break;
-                }
+                if ($i >= $this->num) break;
                 
                 if ($res = json_decode($res, true)) {
                     if ($this->save($res)) {

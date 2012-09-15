@@ -11,7 +11,6 @@ class DB extends PDO {
     public static function getInstance() {
         
         if (self::$instance === NULL) {
-            //self::$instance = new PDO('sqlite:markov.db');
             self::$instance = new DB();
         }
         
@@ -31,17 +30,14 @@ class DB extends PDO {
     
     public function insert($table, $data) {
         
-        $escape = function ($value) {
-            return sqlite_escape_string($value);
+        $escape = function ($v) {
+            return sqlite_escape_string($v);
         };
-        
-        $keys = array_keys($data);
-        $values = array_values($data);
         
         $query = sprintf(
             "INSERT INTO $table (`%s`) VALUES ('%s');",
-            implode("`,`", $keys),
-            implode("','", array_map($escape, $values))
+            implode("`,`", array_keys($data)),
+            implode("','", array_map($escape, array_values($data)))
         );
         
         return $this->exec($query);
