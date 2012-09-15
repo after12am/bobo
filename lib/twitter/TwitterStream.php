@@ -3,10 +3,6 @@ require_once('twitter/TwitterAPI.php');
 
 abstract class TwitterStream extends TwitterAPI {
     
-    protected $hosts = array(
-        'stream' => 'stream.twitter.com'
-    );
-    
     protected $userid;
     protected $passwd;
     protected $fp;
@@ -36,7 +32,7 @@ abstract class TwitterStream extends TwitterAPI {
         // try to establish a connection to a streaming
         // for being delivered a feed of Tweets, without
         // needing to worry about polling or REST API rate limits.
-        $this->fp = fsockopen("ssl://{$this->hosts['stream']}", $port, $this->errno, $this->errmsg, $timeout);
+        $this->fp = fsockopen("ssl://stream.twitter.com", $port, $this->errno, $this->errmsg, $timeout);
         
         if ($this->fp === false) {
             echo "\n[errno {$this->errno}] {$this->errmsg}\n\n";
