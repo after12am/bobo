@@ -1,61 +1,76 @@
 <?
 require_once('DB.php');
-require_once('Markov.php');
-require_once('Tweet.php');
 require_once('yahoo/MAService.php');
 
 class MarkovAgent {
     
     /**
-     * Yahoo MA service
-     *
+     * Database object.
+     * @var object
+     */
+    protected $db;
+    
+    /**
+     * Yahoo MA service.
      * @var array
      */
     protected $ma;
     
-    /**
-     * Model
-     *
-     * @var array
-     */
-    protected $Tweet;
-    
-    /**
-     * Model
-     *
-     * @var array
-     */
-    protected $Markov;
-    
     public function __construct() {
         
-        $this->ma = new MAService(YAHOO_APP_ID);
-        $this->Markov = new Markov();
-        $this->Tweet = new Tweet();
+        $this->db = DB::getInstance();
+        $this->ma = new MAService(Configure::read('yahoo.app_id'));
+    }
+    
+    public function exist($id) {
+        
+        $query = sprintf(
+            "SELECT id FROM tweet WHERE id = %s", 
+            mysql_escape_string($id)
+        );
+        
+        return count($this->db->find($query)) > 0;
     }
     
     public function save($twitter) {
         
-        if ($this->Tweet->exist($twitter['id_str'])) {
+        if (!preg_match('/^([0-9]+)$/', $twitter['id_str'])) {
             return false;
         }
         
-        $data = array(
-            'id' => $twitter['id_str'],
-            'screen_name' => $twitter['user']['screen_name'],
-            'tweet' => $twitter['text']
-        );
+        if ($this->exist($twitter['id_str'])) {
+            return false;
+        }
         
-        $db = DB::getInstance();
-        $db->beginTransaction();
+        $this->db->beginTransaction();
         
         try {
-            $this->Tweet->save($data);
-            $this->heapText($data['tweet']);
-            $db->commit();
+            // save to Twitter table.
+            $data = array(
+                'id' => $twitter['id_str'],
+                'screen_name' => $twitter['user']['screen_name'],
+                'tweet' => $twitter['text'],
+                'updated' => date("Y-m-d H:i:s")
+            );
+            
+            $this->db->insert('tweet', $data);
+            
+            // save to Markov table.
+            $backup = $this->backup($twitter['text']);
+            $data = $this->ma->words($backup['text']);
+            $rows = $this->fix($data);
+            $rows = $this->restore($backup, $rows);
+            
+            foreach ($rows as $row) {
+                $row['updated'] = date("Y-m-d H:i:s");
+                $this->db->insert('markov', $row);
+            }
+            
+            $this->db->commit();
+            
         } catch (Exception $e) {
             echo $e->getTraceAsString();
-            $db->rollback();
+            $this->db->rollback();
             return false;
         }
         
@@ -64,11 +79,12 @@ class MarkovAgent {
     
     public function text($hashtags = array()) {
         
-        $text = '';
+        $query = "SELECT * FROM markov WHERE lex1='%s';";
+        
+        $hashtags = implode(' ', $hashtags);
+        $rows = $this->db->find(sprintf($query, mysql_escape_string('BOF')));
         
         // begin
-        $rows = $this->Markov->find('BOF');
-        
         if (count($rows) === 0) {
             echo "we can't find tweet candidate.\n";
             echo "tweet request was canceled.\n";
@@ -76,54 +92,32 @@ class MarkovAgent {
         }
         
         $add = $rows[mt_rand(0, count($rows) - 1)];
-        $text .= $add['lex2'];
+        $text = $add['lex2'];
         
         while ($add['lex3'] !== 'EOF') {
             
-            $rows = $this->Markov->find($add['lex3']);
+            $rows = $this->db->find(sprintf($query, mysql_escape_string($add['lex3'])));
             
-            // I don't understand why I can't get target rows.
             if (count($rows) === 0) {
                 break;
             }
             
             $add = $rows[mt_rand(0, count($rows) - 1)];
-            
             $textLen = mb_strlen($text, 'UTF-8');
             $addLen = mb_strlen($add['lex1'] . $add['lex2'], 'UTF-8');
-            $signLen = mb_strlen($sign, 'UTF-8') + 1;
+            $hashLen = mb_strlen($hashtags, 'UTF-8') + 1;
             
-            if ($textLen + $addLen + $signLen > 140) {
+            if ($textLen + $addLen + $hashLen > 140) {
                 break;
             }
             
-            $text .= $add['lex1'] . $add['lex2'];
+            $text .= $add['lex1'].$add['lex2'];
         }
-        
-        $hashtags = implode(' ', $hashtags);
         
         return "$text $hashtags";
     }
     
-    private function heapText($text) {
-        
-        if (!$text) {
-            return;
-        }
-        
-        $backup = $this->backup($text);
-        $data = $this->ma->words($backup['text']);
-        $rows = $this->fix($data);
-        $rows = $this->restore($backup, $rows);
-        
-        foreach ($rows as $data) {
-            $this->Markov->save($data);
-        }
-    }
-    
     private function fix($ma) {
-        
-        // fix ma data format to markov model data
         
         $rows = array();
         
@@ -180,11 +174,7 @@ class MarkovAgent {
         );
         
         $rows = array(
-            array(
-                $r1['surface'],
-                $r2['surface'],
-                $r3['surface']
-            ),
+            array($r1['surface'], $r2['surface'], $r3['surface']),
             ...
         );
     */
