@@ -1,6 +1,8 @@
 BoobyTrap
 =========
 
+This is a bot tweets an artificially created message using second order markov chain method.
+
 ## Demo
 
 <a href="https://twitter.com/dev_12am">@dev_12am</a>
