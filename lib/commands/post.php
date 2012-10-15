@@ -37,7 +37,7 @@ class Post extends TwitterSampleStream {
             exit(0);
         }
         
-        echo "@dev_12am:$text\n";
+        echo "$text\n";
     }
     
     public function execute() {
