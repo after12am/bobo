@@ -1,7 +1,7 @@
 BoobyTrap
 =========
 
-This is BoobyTrap is a bot tweets an artificially created message using second order markov chain method. By using markov chain, BoobyTrap tweets as if human tweets. Markov chain is available in case of having relation each other. Especially text. Let's play on words.
+BoobyTrap is a bot tweets an artificially created message using second order markov chain method. By using markov chain, BoobyTrap tweets as if human tweets. Markov chain is available in case of having relation each other. Especially text. Let's play on words.
 
 ## Demo
 
@@ -21,16 +21,16 @@ BoobyTrap requires some settings. Open `lib/constant.php` and fill the below bla
 
 ## Usage
 
-A bot tweets a trap message that is artificially created using a second-order Markov chain. To setup BoobyBot, run the following commands in a new terminal.
+BoobyTrap needs numerous public tweets for constructing a tweet. So, we have to setup database at first. run the following command in a new terminal.
 
     cd /path/to/bin
     ./bot setup
 
-To gather tweets, run the following commands. If you want to set limit, set `pick up num` after `./bot pick`.
+And then run the following commands for gathering tweets. If you want to set limit, set `pick up num` after `./bot pick`.
 
     ./bot pick [pick up num]
 
-To tweet, run the following commands.
+At last, run the following commands for tweet.
 
     ./bot post
 
