@@ -1,7 +1,12 @@
 BoobyTrap
 =========
 
-BoobyTrap is a bot tweets an artificially created message using second order markov chain method. By using markov chain, BoobyTrap tweets as if human tweets. Markov chain is available in case of having relation each other. Especially text. Let's play on words.
+BoobyTrap is a bot tweets an artificially created message using second order 
+<a href="http://en.wikipedia.org/wiki/Markov_chain">markov chain method</a>. 
+This method is a mathematical system that undergoes transitions from one state to another, 
+between a finite or countable number of possible states. This method is available in case of having relationships 
+each other and is particularly effective for text. By using this, bot tweets as if human tweets. 
+This personification system is really absorbing. If interested, let's play on words.
 
 ## Demo
 
