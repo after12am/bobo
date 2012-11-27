@@ -1,12 +1,12 @@
-BoobyTrap
-=========
+bobo
+====
 
-BoobyTrap is a bot tweets an artificially created message using second order 
+bobo is a bot tweets an artificially created message using second order 
 <a href="http://en.wikipedia.org/wiki/Markov_chain">markov chain method</a>. 
 This method is a mathematical system that undergoes transitions from one state to another, 
 between a finite or countable number of possible states. This method is available in case of having relationships 
 each other and is particularly effective for text. By using this, bot tweets as if human tweets. 
-This personification system is really absorbing. If interested, let's play on words.
+This personification system is really absorbing, but is still little stupid. If interested, let's play on words.
 
 ## Demo
 
@@ -14,7 +14,7 @@ This personification system is really absorbing. If interested, let's play on wo
 
 ## Prepare
 
-BoobyTrap requires some settings. Open `lib/constant.php` and fill the below blank.
+bobo requires some settings. Open `lib/constant.php` and fill the below blank.
 
     Configure::write('twitter.user_id', '');
     Configure::write('twitter.password', '');
@@ -26,19 +26,20 @@ BoobyTrap requires some settings. Open `lib/constant.php` and fill the below bla
 
 ## Usage
 
-BoobyTrap needs numerous public tweets for constructing a tweet. So, we have to setup database at first. run the following command in a new terminal.
+bobo needs numerous public tweets for constructing a tweet. So, we have to setup database at first. The command is:
 
     cd /path/to/bin
     ./bot setup
 
-And then run the following commands for gathering tweets. If you want to set limit, set `pick up num` after `./bot pick`.
+pick up tweet command is: 
 
-    ./bot pick [pick up num]
+    ./bot pick [num]
 
-At last, run the following commands for tweet.
+tweet command is:
 
-    ./bot post
+    ./bot tweet
 
 ## Notes
 
 * You can't tweet without picking up timeline. run `./bot pick` before run `./bot post`.
+* If you want to set limit on `pick`, set `pick up num` after `./bot pick`.
