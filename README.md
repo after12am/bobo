@@ -26,20 +26,20 @@ bobo requires some settings. Open `lib/constant.php` and fill the below blank.
 
 ## Usage
 
-bobo needs numerous public tweets for constructing a tweet. So, we have to setup database at first. The command is:
+bobo needs numerous public tweets for constructing a tweet. So, we have to setup database at first.
 
     cd /path/to/bin
     ./bot setup
 
-pick up tweet command is: 
+command for pick up tweets is: 
 
     ./bot pick [num]
 
-tweet command is:
+command for tweet is:
 
     ./bot tweet
 
 ## Notes
 
 * You can't tweet without picking up timeline. run `./bot pick` before run `./bot post`.
-* If you want to set limit on `pick`, set `pick up num` after `./bot pick`.
+* If you want to set limit on `pick` command, set `num` after `./bot pick`.
