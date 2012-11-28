@@ -65,6 +65,12 @@ class Pick extends TwitterSampleStream {
             
             while($res = fgets($this->fp)) {
                 
+                if (strpos($res, 'Unauthorized') > 0) {
+                    print "unauthorized access.\n";
+                    print "please confirm your twitter account.\n";
+                    break;
+                }
+                
                 if ($i >= $this->num) break;
                 
                 if ($res = json_decode($res, true)) {
