@@ -26,7 +26,7 @@ class MarkovAgent {
         
         $query = sprintf(
             "SELECT id FROM tweet WHERE id = %s", 
-            mysql_escape_string($id)
+            sqlite_escape_string($id)
         );
         
         return count($this->db->find($query)) > 0;
@@ -82,7 +82,7 @@ class MarkovAgent {
         $query = "SELECT * FROM markov WHERE lex1='%s';";
         
         $hashtags = implode(' ', $hashtags);
-        $rows = $this->db->find(sprintf($query, mysql_escape_string('BOF')));
+        $rows = $this->db->find(sprintf($query, 'BOF'));
         
         // begin
         if (count($rows) === 0) {
@@ -96,7 +96,7 @@ class MarkovAgent {
         
         while ($add['lex3'] !== 'EOF') {
             
-            $rows = $this->db->find(sprintf($query, mysql_escape_string($add['lex3'])));
+            $rows = $this->db->find(sprintf($query, sqlite_escape_string($add['lex3'])));
             
             if (count($rows) === 0) {
                 break;
