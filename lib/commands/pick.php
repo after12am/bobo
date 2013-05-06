@@ -23,7 +23,7 @@ class Pick extends TwitterSampleStream {
     public function __construct($num, $langs = array('ja')) {
         
         $this->num = $num;
-        $this->langs = array('ja');
+        $this->langs = $langs;
         
         parent::__construct(
             Configure::read('twitter.user_id'),
@@ -72,7 +72,6 @@ class Pick extends TwitterSampleStream {
                 }
                 
                 if ($i >= $this->num) break;
-                
                 if ($res = json_decode($res, true)) {
                     if ($this->save($res)) {
                         $i++;

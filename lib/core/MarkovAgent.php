@@ -1,6 +1,7 @@
 <?
 require_once('DB.php');
 require_once('yahoo/MAService.php');
+require_once('TinyHash.php');
 
 class MarkovAgent {
     
@@ -57,9 +58,9 @@ class MarkovAgent {
             
             // save to Markov table.
             $backup = $this->backup($twitter['text']);
-            $data = $this->ma->words($backup['text']);
+            $data = $this->ma->words($backup[0]);
             $rows = $this->fix($data);
-            $rows = $this->restore($backup, $rows);
+            $rows = $this->restore($backup[1], $rows);
             
             foreach ($rows as $row) {
                 $row['updated'] = date("Y-m-d H:i:s");
@@ -127,18 +128,22 @@ class MarkovAgent {
             $r2 = (array)$ma[$i + 1];
             $r3 = (array)$ma[$i + 2];
             
+            $r1 = (array)$r1['surface'];
+            $r2 = (array)$r2['surface'];
+            $r3 = (array)$r3['surface'];
+            
             if ($i === -1) {
-                $r1 = array('surface' => BOF);
+                $r1 = array(BOF);
             }
             
             if ($i === (count($ma) - 2)) {
-                $r3 = array('surface' => EOF);
+                $r3 = array(EOF);
             }
             
             $rows[] = array(
-                'lex1' => $r1['surface'],
-                'lex2' => $r2['surface'],
-                'lex3' => $r3['surface']
+                'lex1' => $r1[0],
+                'lex2' => $r2[0],
+                'lex3' => $r3[0]
             );
         }
         
@@ -149,28 +154,29 @@ class MarkovAgent {
         
         // backup URL
         $pat = "/https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/";
-        $rep = "REPLACEDURL";
+        $replaced_text = $text;
+        $backup = array();
         
-        $mat = array();
-        preg_match($pat, $text, $ma);
-        $text = preg_replace($pat, $rep, $text);
+        preg_match_all($pat, $replaced_text, $m);
+        if (count($m)) {
+            foreach ($m[0] as $k => $v) {
+                $_v = str_replace('/', '\/', $v);
+                $rep = sprintf("%010s", TinyHash::create($k));
+                $replaced_text = preg_replace("/{$_v}/", $rep, $replaced_text);
+                $backup[] = array(
+                    'match' => $v,
+                    'rep' => $rep
+                );
+            }
+        }
         
-        $backup = array(
-            'text' => $text,    // replaced text
-            'match' => $ma[0],  // match text
-            'rep' => $rep,      // replace text
-            'pat' => $pat       // pattern
-        );
-        
-        return $backup;
+        return array($replaced_text, $backup);
     }
     
     /*
         $backup = array(
-            'text' => $text,      // replaced text
-            'match' => $mat[0],   // match text
-            'rep' => $rep,        // replace text
-            'pat' => $pat         // pattern
+            'match' => $m[0],   // match text
+            'rep' => $rep       // replace text
         );
         
         $rows = array(
@@ -181,14 +187,16 @@ class MarkovAgent {
     private function restore($backup = array(), $rows = array()) {
         
         // I wake up URL that was evacuated
-        if (!isset($backup['match'])) {
-            return $rows;
-        }
+        // if (!isset($backup['match'])) {
+        //     return $rows;
+        // }
         
         foreach ($rows as $i => $row) {
             foreach ($row as $j => $c) {
-                if ($c === $backup['rep']) {
-                    $rows[$i][$j] = $backup['match'];
+                foreach($backup as $b) {
+                    if ($c === $b['rep']) {
+                        $rows[$i][$j] = $b['match'];
+                    }
                 }
             }
         }
