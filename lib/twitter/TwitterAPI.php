@@ -1,4 +1,4 @@
-<?
+<?php
 require_once('twitteroauth/twitteroauth.php');
 
 class TwitterAPI extends TwitterOAuth {

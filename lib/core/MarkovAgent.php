@@ -1,4 +1,4 @@
-<?
+<?php
 require_once('DB.php');
 require_once('yahoo/MAService.php');
 require_once('TinyHash.php');

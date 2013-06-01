@@ -1,7 +1,7 @@
-<?
-
-// post artificially created text using a second-order Markov chain to twitter.
-
+<?php
+/*
+    post artificially created text using a second-order Markov chain to twitter.
+*/
 require_once('Configure.php');
 require_once('twitter/TwitterSampleStream.php');
 require_once('MarkovAgent.php');
@@ -14,10 +14,9 @@ class Post extends TwitterSampleStream {
      */
     protected $hashtags;
     
+    protected $agent;
+    
     public function __construct($hashtags = array('#bot')) {
-        
-        $this->hashtags = $hashtags;
-        
         parent::__construct(
             Configure::read('twitter.user_id'),
             Configure::read('twitter.password'),
@@ -26,24 +25,18 @@ class Post extends TwitterSampleStream {
             Configure::read('twitter.access_token'),
             Configure::read('twitter.access_token_secret')
         );
-    }
-    
-    public function post($text) {
-        
-        $res = parent::post('statuses/update', array('status' => $text));
-        
-        if ($res->error) {
-            echo "{$res->error}\n";
-            exit(0);
-        }
-        
-        echo "$text\n";
+        $this->hashtags = $hashtags;
+        $this->agent = new MarkovAgent();
     }
     
     public function execute() {
-        
-        $agent = new MarkovAgent();
-        $this->post($agent->text($this->hashtags));
+        $text = $this->agent->text($this->hashtags);
+        $result = parent::post('statuses/update', array('status' => $text));
+        if ($result->error) {
+            echo "{$result->error}\n";
+            exit(0);
+        }
+        echo "$text\n";
     }
 }
 

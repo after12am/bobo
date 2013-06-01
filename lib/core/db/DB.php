@@ -1,4 +1,4 @@
-<?
+<?php
 class DB extends PDO {
     
     protected static $instance = NULL;

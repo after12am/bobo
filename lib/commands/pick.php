@@ -1,7 +1,7 @@
-<?
-
-// Applied to the Markov chain with a morphological analysis.
-
+<?php
+/*
+    Applied to the Markov chain with a morphological analysis.
+*/
 require_once('Configure.php');
 require_once('twitter/TwitterSampleStream.php');
 require_once('MarkovAgent.php');
@@ -21,10 +21,6 @@ class Pick extends TwitterSampleStream {
     protected $langs;
     
     public function __construct($num, $langs = array('ja')) {
-        
-        $this->num = $num;
-        $this->langs = $langs;
-        
         parent::__construct(
             Configure::read('twitter.user_id'),
             Configure::read('twitter.password'),
@@ -33,10 +29,11 @@ class Pick extends TwitterSampleStream {
             Configure::read('twitter.access_token'),
             Configure::read('twitter.access_token_secret')
         );
+        $this->num = $num;
+        $this->langs = $langs;
     }
     
     protected function clean($text) {
-        
         $text = preg_replace("(¥r¥n|¥r|¥n)", "", $text);
         $text = preg_replace("/(#.* |#.*　|#.*)/", "", $text);
         $text = preg_replace("/( |　)*(QT|RT)( |　)*/", "", $text);
@@ -45,39 +42,28 @@ class Pick extends TwitterSampleStream {
     }
     
     protected function save($res) {
-        
-        if (in_array($res['user']['lang'], $this->langs)) {
-            if ($res['text'] = $this->clean($res['text'])) {
-                $agent = new MarkovAgent();
-                $agent->save($res);
-                echo "@{$res['user']['screen_name']}:{$res['text']}\n";
-                return true;
-            }
+        if (!in_array($res['user']['lang'], $this->langs)) return false;
+        if ($res['text'] = $this->clean($res['text'])) {
+            $agent = new MarkovAgent();
+            $agent->save($res);
+            echo "@{$res['user']['screen_name']}:{$res['text']}\n";
+            return true;
         }
         return false;
     }
     
     public function execute() {
-        
+        if (!$this->open()) return;
         $i = 0;
-        
-        if ($this->open()) {
-            
-            while($res = fgets($this->fp)) {
-                
-                if (strpos($res, 'Unauthorized') > 0) {
-                    print "unauthorized access.\n";
-                    print "please confirm your twitter account.\n";
-                    break;
-                }
-                
-                if ($i >= $this->num) break;
-                if ($res = json_decode($res, true)) {
-                    if ($this->save($res)) {
-                        $i++;
-                    }
-                }
+        while($res = fgets($this->fp)) {
+            if (strpos($res, 'Unauthorized') > 0) {
+                print "unauthorized access.\n";
+                print "please confirm your twitter account.\n";
+                break;
             }
+            if ($i >= $this->num) break;
+            if (!($res = json_decode($res, true))) continue;
+            if ($this->save($res)) $i++;
         }
     }
 }

@@ -1,7 +1,7 @@
-<?
-
-// setup database command
-
+<?php
+/*
+    setup database command
+*/
 require_once('DB.php');
 
 $query = file_get_contents(sprintf(
@@ -17,4 +17,3 @@ if ($db->exec($query) !== false) {
 }
 
 echo 'database setup failed.';
-exit;

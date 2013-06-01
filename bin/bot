@@ -1,11 +1,11 @@
 #!/usr/bin/php
-<?
+<?php
 require_once('../lib/bootstrap.php');
 
 $option = $argv[1];
 
 if (is_file("../lib/commands/$option.php")) {
-    require_once("../lib/commands/$option.php");
+    require_once("../lib/commands/{$option}.php");
     exit;
 }
 

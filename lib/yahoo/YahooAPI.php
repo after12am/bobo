@@ -1,4 +1,4 @@
-<?
+<?php
 class YahooAPI {
     
     protected $appid;
@@ -10,6 +10,6 @@ class YahooAPI {
             exit(0);
         }
         
-        $this->appid = appid;
+        $this->appid = $appid;
     }
 }
