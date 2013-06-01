@@ -6,7 +6,6 @@ class Configure {
     protected $defines = array();
     
     protected static function getInstance() {
-        
         if (self::$instance === NULL) {
             self::$instance = new Configure();
         }
@@ -14,18 +13,13 @@ class Configure {
     }
     
     public static function write($key, $value) {
-        
         $instance = self::getInstance();
         $instance->defines[$key] = $value;
     }
     
     public static function read($key) {
-        
         $instance = self::getInstance();
-        
-        if (isset($instance->defines[$key])) {
-            return $instance->defines[$key];
-        }
+        if (isset($instance->defines[$key])) return $instance->defines[$key];
         return NULL;
     }
 }
