@@ -1,12 +1,12 @@
-bobo
+snip
 ====
 
-bobo is a bot tweets an artificially created message using second order 
+snip is a bot tweets an artificially created message using second order 
 <a href="http://en.wikipedia.org/wiki/Markov_chain">markov chain method</a>. 
 This method is a mathematical system that undergoes transitions from one state to another, 
 between a finite or countable number of possible states. This method is available and effective in case of having relationships each other. 
-Specifically, bobo will select next word corresponding to the probability of occurrence of the two words with connected. bobo will repeats this and get generated word sequence. 
-Therefore bobo can tweet as if human tweets. This personification system is really absorbing, but is still little stupid. If interested, let's play on words.
+Specifically, snip will select next word corresponding to the probability of occurrence of the two words with connected. snip will repeats this and get generated word sequence. 
+Therefore snip can tweet as if human tweets. This personification system is really absorbing, but is still little stupid. If interested, let's play on words.
 
 ## Demo
 
@@ -14,7 +14,7 @@ Therefore bobo can tweet as if human tweets. This personification system is real
 
 ## Prepare
 
-bobo requires some settings. Open `lib/constant.php` and fill the below blank.
+snip requires some settings. Open `lib/constant.php` and fill the below blank.
 
     Configure::write('twitter.user_id', '');
     Configure::write('twitter.password', '');
@@ -26,7 +26,7 @@ bobo requires some settings. Open `lib/constant.php` and fill the below blank.
 
 ## Usage
 
-bobo needs numerous public tweets for constructing an artificially message. So, we have to setup database at first.
+snip needs numerous public tweets for constructing an artificially message. So, we have to setup database at first.
 
     cd /path/to/bin
     ./bot setup
